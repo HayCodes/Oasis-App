@@ -6,4 +6,9 @@ class RouteNames {
   static const String support = 'support';
   static const String categories = 'categories';
   static const String shop = 'shop';
+  static const String categoryView = 'category_view';
+  static const String blog = 'blog';
+  static const String orders = 'orders';
+  static const String orderDetail = 'order-detail';
+  static const String profile = 'profile';
 }

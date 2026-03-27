@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oasis/app/sign_in/presentation/ui/widgets/auth_widget.dart';
 import 'package:oasis/components/widgets/page_header.dart';
+import 'package:oasis/components/widgets/primary_button.dart';
 
 class ForgotPasswordSheet extends StatefulWidget {
   const ForgotPasswordSheet({super.key});
@@ -54,41 +56,31 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
           const SizedBox(height: 24),
           const Text("Enter your email and we'll send a password reset OTP"),
           const SizedBox(height: 16),
-          TextField(
+
+          // email
+          buildTextField(
             controller: _emailController,
+            hintText: 'hello@example.com',
+            obscureText: false,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              hintText: 'hello@example.com',
-              hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-            ),
+            onChanged: (val) {},
           ),
+
           const SizedBox(height: 16),
+
+          // Reset Password Button
           SizedBox(
-            height: 56,
             width: double.infinity,
-            child: ElevatedButton(
+            child: buildPrimaryButton(
+              'Reset Password',
               onPressed: () {
                 setState(() {
                   _step = 1;
                 });
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7B6FE8),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50),
-                ),
-              ),
-              child: const Text(
-                'Reset Password',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
             ),
           ),
+
           const SizedBox(height: 12),
           Center(
             child: Row(
@@ -117,13 +109,13 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           PageHeader(
             title: 'Reset Password',
             textStyle: Theme.of(context).textTheme,
             onTap: () => Navigator.pop(context),
           ),
+
           const SizedBox(height: 24),
           // Checkmark icon
           Container(
@@ -139,60 +131,50 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
               size: 40,
             ),
           ),
+
           const SizedBox(height: 16),
           const Text(
             'Create new password',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
+
           const SizedBox(height: 8),
           const Text(
             'Your new password must be different from previously used passwords.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey),
           ),
+
           const SizedBox(height: 24),
-          TextField(
+          // new password
+          buildTextField(
             controller: _newPasswordController,
+            hintText: 'Enter new password',
             obscureText: true,
-            decoration: const InputDecoration(
-              hintText: 'New Password',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-            ),
+            keyboardType: TextInputType.visiblePassword,
+            onChanged: (value) {},
           ),
+
           const SizedBox(height: 12),
-          TextField(
+          // Confirm New Password
+          buildTextField(
             controller: _confirmPasswordController,
+            hintText: 'Confirm new password',
             obscureText: true,
-            decoration: const InputDecoration(
-              hintText: 'Confirm New Password',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-            ),
+            keyboardType: TextInputType.visiblePassword,
+            onChanged: (value) {},
           ),
+
           const SizedBox(height: 16),
+          // Final reset password
+          // TO-DO improve the logic of password reset here
           SizedBox(
-            height: 56,
             width: double.infinity,
-            child: ElevatedButton(
+            child: buildPrimaryButton(
+              'Reset Password',
               onPressed: () {
-                // TODO: Implement password reset logic
                 GoRouter.of(context).pop();
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7B6FE8),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50),
-                ),
-              ),
-              child: const Text(
-                'Reset Password',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
             ),
           ),
         ],

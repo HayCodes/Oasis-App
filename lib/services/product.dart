@@ -1,17 +1,4 @@
 class Product {
-  final String id;
-  final String name;
-  final String brand;
-  final double price;
-  final double? originalPrice;
-  final String imageUrl;
-  final String category;
-  final bool isNew;
-  final bool isFavorite;
-  final double rating;
-  final int reviewCount;
-  final List<String> tags;
-  final String? badge;
 
   Product({
     required this.id,
@@ -28,6 +15,19 @@ class Product {
     this.tags = const [],
     this.badge,
   });
+  final String id;
+  final String name;
+  final String brand;
+  final double price;
+  final double? originalPrice;
+  final String imageUrl;
+  final String category;
+  final bool isNew;
+  final bool isFavorite;
+  final double rating;
+  final int reviewCount;
+  final List<String> tags;
+  final String? badge;
 
   bool get isOnSale => originalPrice != null && originalPrice! > price;
 
@@ -46,7 +46,6 @@ final List<Product> sampleProducts = [
     originalPrice: 265.00,
     imageUrl: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80',
     category: 'Tops',
-    isNew: false,
     rating: 4.8,
     reviewCount: 124,
     tags: ['Linen', 'Oversized'],
@@ -96,7 +95,6 @@ final List<Product> sampleProducts = [
     price: 450.00,
     imageUrl: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80',
     category: 'Bags',
-    isNew: false,
     rating: 4.9,
     reviewCount: 341,
     tags: ['Leather', 'Tote'],

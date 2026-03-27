@@ -1,17 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../themes/app_theme.dart';
+import 'package:oasis/components/themes/app_theme.dart';
 
 class AppTextField extends StatefulWidget {
-  final String hint;
-  final IconData? prefixIcon;
-  final Widget? prefixWidget;
-  final bool isPassword;
-  final bool showSuccessIcon;
-  final TextEditingController? controller;
-  final TextInputType? keyboardType;
-  final String? errorText;
 
   const AppTextField({
     super.key,
@@ -24,6 +15,14 @@ class AppTextField extends StatefulWidget {
     this.keyboardType,
     this.errorText,
   });
+  final String hint;
+  final IconData? prefixIcon;
+  final Widget? prefixWidget;
+  final bool isPassword;
+  final bool showSuccessIcon;
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
+  final String? errorText;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -89,11 +88,11 @@ class _AppTextFieldState extends State<AppTextField> {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.inputBorder, width: 1),
+          borderSide: const BorderSide(color: AppColors.inputBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.inputBorder, width: 1),
+          borderSide: const BorderSide(color: AppColors.inputBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

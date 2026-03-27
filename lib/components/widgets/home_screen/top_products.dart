@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:oasis/components/themes/app_theme.dart';
 import 'package:oasis/components/widgets/home_screen/product_card.dart';
 import 'package:oasis/services/product.dart';
-import '../../themes/app_theme.dart';
 
 class TopProducts extends StatefulWidget {
-  final List<String> categories;
-  final List<Product> filteredProducts;
 
   const TopProducts({
     super.key,
     required this.categories,
     required this.filteredProducts,
   });
+  final List<String> categories;
+  final List<Product> filteredProducts;
 
   @override
   State<TopProducts> createState() => _TopProductsState();
@@ -56,7 +56,7 @@ class _TopProductsState extends State<TopProducts> {
       context: context,
       backgroundColor: AppColors.background,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
+
       ),
       builder: (_) => const SortBottomSheet(),
     );
@@ -66,9 +66,6 @@ class _TopProductsState extends State<TopProducts> {
 // ── CategoryTabs ────────────────────────────────────────────────────────────
 
 class CategoryTabs extends StatelessWidget {
-  final List<String> categories;
-  final int selectedIndex;
-  final ValueChanged<int> onCategorySelected;
 
   const CategoryTabs({
     super.key,
@@ -76,6 +73,9 @@ class CategoryTabs extends StatelessWidget {
     required this.selectedIndex,
     required this.onCategorySelected,
   });
+  final List<String> categories;
+  final int selectedIndex;
+  final ValueChanged<int> onCategorySelected;
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +99,6 @@ class CategoryTabs extends StatelessWidget {
                   color: isSelected
                       ? AppColors.textPrimary
                       : AppColors.inputBorder,
-                  width: 1,
                 ),
               ),
               child: Center(
@@ -124,10 +123,6 @@ class CategoryTabs extends StatelessWidget {
 // ── ProductToolbar ───────────────────────────────────────────────────────────
 
 class ProductToolbar extends StatelessWidget {
-  final int itemCount;
-  final bool isGridView;
-  final VoidCallback onSortTap;
-  final VoidCallback onToggleView;
 
   const ProductToolbar({
     super.key,
@@ -136,6 +131,10 @@ class ProductToolbar extends StatelessWidget {
     required this.onSortTap,
     required this.onToggleView,
   });
+  final int itemCount;
+  final bool isGridView;
+  final VoidCallback onSortTap;
+  final VoidCallback onToggleView;
 
   @override
   Widget build(BuildContext context) {
@@ -184,15 +183,15 @@ class ProductToolbar extends StatelessWidget {
 }
 
 class _ToolbarButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
 
   const _ToolbarButton({
     required this.icon,
     required this.label,
     required this.onTap,
   });
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -220,14 +219,14 @@ class _ToolbarButton extends StatelessWidget {
 // ── Products ─────────────────────────────────────────────────────
 
 class ProductGrid extends StatelessWidget {
-  final List<Product> products; // replace dynamic with your Product type
-  final bool isGridView;
-
   const ProductGrid({
     super.key,
     required this.products,
     required this.isGridView,
   });
+  final List<Product> products; // replace dynamic with your Product type
+
+  final bool isGridView;
 
   @override
   Widget build(BuildContext context) {

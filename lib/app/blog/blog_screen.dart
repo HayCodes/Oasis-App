@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oasis/components/themes/app_theme.dart';
 import 'package:oasis/components/widgets/page_header.dart';
 
-import '../components/themes/app_theme.dart';
-
-class Support extends StatelessWidget {
-  const Support({super.key});
+class BlogScreen extends StatelessWidget {
+  const BlogScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,35 +17,29 @@ class Support extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             PageHeader(
-              title: 'Support',
+              title: 'Blog',
               textStyle: textStyle,
               onTap: () {
                 GoRouter.of(context).pop();
               },
             ),
 
-            Expanded(child: _buildSupport(context)),
+            Expanded(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      'Welcome to Oasis Blog',
+                      style: textStyle.headlineSmall,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
-}
-
-
-Widget _buildSupport(BuildContext context) {
-  final textStyle = Theme.of(context).textTheme;
-
-  return SingleChildScrollView(
-    child: Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('CONTACT US', style: textStyle.labelLarge)
-    
-        ],
-      ),
-    ),
-  );
 }

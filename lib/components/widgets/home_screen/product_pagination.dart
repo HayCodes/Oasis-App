@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../themes/app_theme.dart';
+import 'package:oasis/components/themes/app_theme.dart';
 
 class PaginationFooter extends StatelessWidget {
-  final int shownCount;
-  final int totalCount;
-  final VoidCallback onShowMore;
-  final bool isLoading;
-  final VoidCallback onCollapse;
 
   const PaginationFooter({
     super.key,
@@ -17,6 +12,11 @@ class PaginationFooter extends StatelessWidget {
     required this.onCollapse,
     this.isLoading = false,
   });
+  final int shownCount;
+  final int totalCount;
+  final VoidCallback onShowMore;
+  final bool isLoading;
+  final VoidCallback onCollapse;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class PaginationFooter extends StatelessWidget {
               value: progress,
               minHeight: 2,
               backgroundColor: AppColors.inputBorder,
-              valueColor: AlwaysStoppedAnimation(AppColors.textPrimary),
+              valueColor: const AlwaysStoppedAnimation(AppColors.textPrimary),
             ),
           ),
           if (totalCount > 0) ...[

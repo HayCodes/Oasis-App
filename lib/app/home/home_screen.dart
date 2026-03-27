@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:oasis/components/widgets/home_screen/menu_drawer.dart';
-import 'package:oasis/components/widgets/home_screen/product_pagination.dart';
-import 'package:oasis/components/widgets/home_screen/top_products.dart';
-import 'package:oasis/components/widgets/product_screen/bottom_nav.dart';
+import 'package:oasis/components/themes/app_theme.dart';
 import 'package:oasis/components/widgets/home_screen/cart_button.dart';
 import 'package:oasis/components/widgets/home_screen/categories.dart';
 import 'package:oasis/components/widgets/home_screen/faq.dart';
 import 'package:oasis/components/widgets/home_screen/hamburger.dart';
-import '../services/product.dart';
-import '../components/themes/app_theme.dart';
+import 'package:oasis/components/widgets/home_screen/menu_drawer.dart';
+import 'package:oasis/components/widgets/home_screen/product_pagination.dart';
+import 'package:oasis/components/widgets/home_screen/top_products.dart';
+import 'package:oasis/services/product.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -66,10 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MenuDrawer(),
+      drawer: const MenuDrawer(),
       backgroundColor: AppColors.white,
       body: SafeArea(child: _mainContainer()),
-      bottomNavigationBar: BottomNav(),
     );
   }
 
@@ -79,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
       slivers: [
         SliverToBoxAdapter(child: _buildHeader()),
         SliverToBoxAdapter(child: _buildHeroBanner()),
-        SliverToBoxAdapter(child: Categories()),
+        const SliverToBoxAdapter(child: Categories()),
         SliverToBoxAdapter(
           key: _productsKey,
           child: TopProducts(
@@ -96,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onCollapse: _collapse,
           ),
         ),
-        SliverToBoxAdapter(child: FAQSection()),
+        const SliverToBoxAdapter(child: FAQSection()),
       ],
     );
   }
@@ -113,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
               HamburgerButton(context: context),
 
               // Logo
-              Expanded(
+              const Expanded(
                 child: Image(
                   image: AssetImage('images/Oasis.png'),
                   width: 20.0,
@@ -122,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
 
               // Cart icon
-              Cartbutton(),
+              const Cartbutton(),
             ],
           );
         },
@@ -135,17 +133,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        SizedBox(height: 15.0),
+        const SizedBox(height: 15.0),
         Column(
           children: [
             Text('FURNITURE STORE', style: textTheme.headlineSmall),
-            SizedBox(height: 5.0),
+            const SizedBox(height: 5.0),
             Text(
               'Discover the Artistry of Modern Contemporary Furniture',
               style: textTheme.headlineLarge,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 5.0),
+            const SizedBox(height: 5.0),
             Text(
               'Experience the elegance and functionality of cutting-edge design where luxury meets innovation in every piece for ultimate relaxation',
               style: textTheme.displaySmall,
@@ -153,11 +151,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        SizedBox(height: 10.0),
+        const SizedBox(height: 10.0),
         SizedBox(
           height: 300,
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 15.0),
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
             child: Align(
               alignment: Alignment.centerRight,
               child: Image.asset(

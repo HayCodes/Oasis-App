@@ -14,15 +14,26 @@ class _MenuDrawerState extends State<MenuDrawer> {
 
   final _items = const [
     (icon: Icons.login, label: 'LOGIN', route: RouteNames.auth),
-    (icon: Icons.login, label: 'SIGNUP', route: RouteNames.signup),
-    (icon: Icons.category, label: 'CATEGORIES', route: RouteNames.categories),
     (icon: Icons.help, label: 'HELP', route: RouteNames.support),
+    (icon: Icons.shopping_cart, label: 'MY ORDERS', route: null),
+    (icon: Icons.logout, label: 'LOGOUT', route: null),
+    (icon: Icons.person, label: 'PROFILE', route: RouteNames.profile)
   ];
 
-  void _handleItemClick(int index, String route) {
+  void _handleItemClick(int index) {
+    final item = _items[index];
+
+    if (item.route == null) {
+      if (item.label == 'LOGOUT') {
+        // handle logout logic here
+        GoRouter.of(context).pop();
+      }
+      return;
+    }
+
     setState(() => _activeIndex = index);
     GoRouter.of(context).pop();
-    GoRouter.of(context).pushNamed(route);
+    GoRouter.of(context).pushNamed(item.route!);
   }
 
   @override
@@ -43,7 +54,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
             ...List.generate(_items.length, (i) {
               final isActive = i == _activeIndex;
               return InkWell(
-                onTap: () => _handleItemClick(i, _items[i].route),
+                onTap: () => _handleItemClick(i),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 30),
                   child: Column(

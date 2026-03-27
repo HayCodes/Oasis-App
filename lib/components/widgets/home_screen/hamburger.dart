@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class HamburgerButton extends StatelessWidget {
-  final BuildContext context;
   const HamburgerButton({super.key, required this.context});
+  final BuildContext context;
 
   @override
   Widget build(BuildContext context) {

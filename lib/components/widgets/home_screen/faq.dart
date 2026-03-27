@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../themes/app_theme.dart';
+import 'package:oasis/components/themes/app_theme.dart';
 
 class FAQSection extends StatelessWidget {
   const FAQSection({super.key});
@@ -15,7 +15,7 @@ class FAQSection extends StatelessWidget {
         question: 'What types of furniture do you offer?',
         answer:
         'We offer a wide range of contemporary furniture including sofas, chairs, tables, beds, storage solutions, and home furniture. Our collection is carefully curated to combine style with functionality and quality.',
-        initiallyExpanded: true,
+        // initiallyExpanded: true,
       ),
       FAQItem(
         number: '02',
@@ -40,7 +40,7 @@ class FAQSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 30),
+        const SizedBox(height: 30),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           child: Text('FAQ', style: textStyle.displayMedium),
@@ -60,10 +60,6 @@ class FAQSection extends StatelessWidget {
 }
 
 class FAQItem {
-  final String number;
-  final String question;
-  final String answer;
-  final bool initiallyExpanded;
 
   FAQItem({
     required this.number,
@@ -71,12 +67,16 @@ class FAQItem {
     required this.answer,
     this.initiallyExpanded = false,
   });
+  final String number;
+  final String question;
+  final String answer;
+  final bool initiallyExpanded;
 }
 
 class CustomAccordionTile extends StatefulWidget {
-  final FAQItem item;
 
   const CustomAccordionTile({super.key, required this.item});
+  final FAQItem item;
 
   @override
   State<CustomAccordionTile> createState() => _CustomAccordionTileState();
@@ -131,7 +131,6 @@ class _CustomAccordionTileState extends State<CustomAccordionTile>
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Number
                 SizedBox(
@@ -166,8 +165,8 @@ class _CustomAccordionTileState extends State<CustomAccordionTile>
                     return Container(
                       width: 40,
                       height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF2F2F2),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF2F2F2),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(

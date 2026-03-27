@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../../themes/app_theme.dart';
+import 'package:oasis/components/themes/app_theme.dart';
 
 class CartDrawer extends StatefulWidget {
   const CartDrawer({super.key});
@@ -34,7 +33,7 @@ class CartDrawer extends StatefulWidget {
 
 class _CartDrawerState extends State<CartDrawer> {
   // 🔁 Replace with your real cart state later
-  final List<Map<String, dynamic>> cartItems = [
+  late final List<Map<String, dynamic>> cartItems = [
     {
       'name': 'possimus eius facere',
       'description':
@@ -122,7 +121,7 @@ class _CartDrawerState extends State<CartDrawer> {
                       child: Container(
                         width: 36,
                         height: 36,
-                        decoration: BoxDecoration(shape: BoxShape.circle),
+                        decoration: const BoxDecoration(shape: BoxShape.circle),
                         child: const Icon(Icons.close, size: 18),
                       ),
                     ),

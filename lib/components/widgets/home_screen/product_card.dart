@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../screens/product_detail_screen.dart';
-import '../../../services/product.dart';
-import '../../themes/app_theme.dart';
+import 'package:oasis/app/shop/product_detail_screen.dart';
+import 'package:oasis/components/themes/app_theme.dart';
+import 'package:oasis/services/product.dart';
 
 class ProductCard extends StatefulWidget {
-  final Product product;
-  final bool isWide;
 
   const ProductCard({super.key, required this.product, this.isWide = false});
+  final Product product;
+  final bool isWide;
 
   @override
   State<ProductCard> createState() => _ProductCardState();
@@ -48,7 +48,6 @@ class _ProductCardState extends State<ProductCard> {
                 children: [
                   // Product Image
                   ClipRRect(
-                    borderRadius: BorderRadius.zero,
                     child: CachedNetworkImage(
                       imageUrl: widget.product.imageUrl,
                       width: double.infinity,

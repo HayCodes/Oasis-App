@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:oasis/components/themes/app_theme.dart';
+
+import 'package:oasis/services/router/app_router_constants.dart';
 
 class Categories extends StatelessWidget {
   const Categories({super.key});
@@ -10,35 +13,34 @@ class Categories extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           child: Text('Categories', style: textStyle.displayMedium),
         ),
-        SizedBox(height: 15),
-        CategoriesCard(
+        const SizedBox(height: 15),
+        const CategoriesCard(
+          slug: 'sitting-room',
           title: 'Sitting Room',
           imageUrl: 'images/sofa.png',
-          onTap: () => {},
         ),
-        SizedBox(height: 15),
-        CategoriesCard(
+        const SizedBox(height: 15),
+        const CategoriesCard(
+          slug: 'accessories',
           title: 'Accessories',
           imageUrl: 'images/flower-vase.png',
-          onTap: () => {},
         ),
-        SizedBox(height: 15),
-        CategoriesCard(
+        const SizedBox(height: 15),
+        const CategoriesCard(
+          slug: 'kitchen',
           title: 'Kitchen',
           imageUrl: 'images/kettle.png',
-          onTap: () => {},
         ),
-        SizedBox(height: 15),
-        CategoriesCard(
+        const SizedBox(height: 15),
+        const CategoriesCard(
+          slug: 'bedroom',
           title: 'Bedroom',
           imageUrl: 'images/stand.png',
-          // ignore: avoid_print
-          onTap: () => {print('Bedroom tapped')},
         ),
       ],
     );
@@ -46,21 +48,27 @@ class Categories extends StatelessWidget {
 }
 
 class CategoriesCard extends StatelessWidget {
-  final String title;
-  final String imageUrl;
-  final VoidCallback onTap;
 
   const CategoriesCard({
     super.key,
     required this.title,
     required this.imageUrl,
-    required this.onTap,
+    required this.slug,
   });
+  final String title;
+  final String imageUrl;
+  final String slug;
 
   @override
   Widget build(BuildContext context) {
+    void handleTap() {
+      GoRouter.of(
+        context,
+      ).pushNamed(RouteNames.categoryView, pathParameters: {'slug': slug});
+    }
+
     return GestureDetector(
-      onTap: onTap,
+      onTap: handleTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 10),
         width: double.infinity,
@@ -70,7 +78,6 @@ class CategoriesCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
             color: AppColors.background.withValues(alpha: 0.2),
-            width: 1,
           ),
         ),
         clipBehavior: Clip.hardEdge,
@@ -79,13 +86,12 @@ class CategoriesCard extends StatelessWidget {
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 5.0),
                     child: Text(
                       title,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
@@ -97,31 +103,39 @@ class CategoriesCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(left: 5.0),
                     child: TextButton(
-                      onPressed: onTap,
+                      onPressed: handleTap,
                       style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.resolveWith((states) {
+                        backgroundColor: WidgetStateProperty.resolveWith((
+                          states,
+                        ) {
                           if (states.contains(WidgetState.pressed)) {
                             return AppColors.buttonPrimary;
                           }
                           return AppColors.background;
                         }),
-                        maximumSize: WidgetStatePropertyAll(Size(120, 50)),
+                        maximumSize: const WidgetStatePropertyAll(Size(120, 50)),
                         shape: WidgetStatePropertyAll(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18),
-                            side: BorderSide(
+                            side: const BorderSide(
                               color: AppColors.textMuted,
                               width: 1.5,
                             ),
                           ),
                         ),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text('Shop Now', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
-                          Icon(Icons.arrow_forward, size: 13,),
-                        ]
+                           Text(
+                            'Shop Now',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward, size: 13),
+                        ],
                       ),
                     ),
                   ),

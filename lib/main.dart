@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:oasis/services/router/app_router.dart';
-import 'components/themes/app_theme.dart';
+import 'package:oasis/components/themes/app_theme.dart';
+import 'package:oasis/routes.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

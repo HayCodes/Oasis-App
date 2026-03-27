@@ -1,6 +1,7 @@
-import 'package:oasis/screens/home_screen.dart';
 import 'package:flutter/material.dart';
-import '../components/themes/app_theme.dart';
+import 'package:go_router/go_router.dart';
+import 'package:oasis/components/themes/app_theme.dart';
+import 'package:oasis/services/router/app_router_constants.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -41,15 +42,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Navigate after 3s
     Future.delayed(const Duration(milliseconds: 3000), () {
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const HomeScreen(),
-            transitionsBuilder: (_, anim, _, child) =>
-                FadeTransition(opacity: anim, child: child),
-            transitionDuration: const Duration(milliseconds: 800),
-          ),
-        );
+        GoRouter.of(context).goNamed(RouteNames.home);
       }
     });
   }
@@ -87,6 +80,6 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Widget _buildFullBrand() {
-    return const Image(image: (AssetImage('images/Oasis.png')));
+    return const Image(image: AssetImage('images/Oasis.png'));
   }
 }

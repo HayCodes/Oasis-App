@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:oasis/components/themes/app_theme.dart';
-import '../services/product.dart';
+import 'package:oasis/services/product.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  final Product product;
-
   const ProductDetailScreen({super.key, required this.product});
+
+  final Product product;
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -282,7 +282,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           const SizedBox(height: 20),
 
           // Delivery info
-          _buildInfoRow(Icons.local_shipping_outlined, 'Free shipping on orders over \$200'),
+          _buildInfoRow(Icons.local_shipping_outlined, r'Free shipping on orders over $200'),
           const SizedBox(height: 12),
           _buildInfoRow(Icons.refresh_rounded, 'Free returns within 30 days'),
           const SizedBox(height: 12),
