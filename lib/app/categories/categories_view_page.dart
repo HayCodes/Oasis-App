@@ -91,31 +91,6 @@ class _CategoryViewPageState extends State<CategoryViewPage> {
 
                     const SizedBox(height: 16),
 
-                    // ── Breadcrumb ───────────────────────────────────
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     _BreadcrumbItem(
-                    //       label: 'Home',
-                    //       onTap: () => context.goNamed(RouteNames.home),
-                    //     ),
-                    //     const _BreadcrumbSeparator(),
-                    //     _BreadcrumbItem(
-                    //       label: 'Categories',
-                    //       onTap: () => GoRouter.of(context).pop(),
-                    //     ),
-                    //     const _BreadcrumbSeparator(),
-                    //     Text(
-                    //       widget.item.title,
-                    //       style: const TextStyle(
-                    //         fontSize: 13,
-                    //         fontWeight: FontWeight.w600,
-                    //         color: Color(0xFF1A1A1A),
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-
                     const SizedBox(height: 20),
 
                     // ── Search ───────────────────────────────────────
@@ -328,31 +303,6 @@ class ClipRounded extends StatelessWidget {
       ClipRRect(borderRadius: BorderRadius.circular(radius), child: child);
 }
 
-class _BreadcrumbItem extends StatelessWidget {
-
-  const _BreadcrumbItem({required this.label, required this.onTap});
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Text(
-      label,
-      style: const TextStyle(fontSize: 13, color: Color(0xFF999999)),
-    ),
-  );
-}
-
-class _BreadcrumbSeparator extends StatelessWidget {
-  const _BreadcrumbSeparator();
-
-  @override
-  Widget build(BuildContext context) => const Padding(
-    padding: EdgeInsets.symmetric(horizontal: 6),
-    child: Icon(Icons.chevron_right, size: 14, color: Color(0xFF999999)),
-  );
-}
 
 class _SortDropdown extends StatelessWidget {
 
@@ -482,10 +432,10 @@ class _PeopleAlsoViewed extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               'People also viewed',
               style: TextStyle(
                 fontSize: 20,
@@ -493,13 +443,13 @@ class _PeopleAlsoViewed extends StatelessWidget {
                 color: Color(0xFF1A1A1A),
               ),
             ),
-            // Row(
-            //   children: [
-            //     _NavButton(icon: Icons.chevron_left, onTap: () {}),
-            //     const SizedBox(width: 8),
-            //     _NavButton(icon: Icons.chevron_right, onTap: () {}),
-            //   ],
-            // ),
+            Row(
+              children: [
+                _NavButton(icon: Icons.chevron_left, onTap: () {}),
+                 const SizedBox(width: 8),
+                _NavButton(icon: Icons.chevron_right, onTap: () {}),
+              ],
+            ),
           ],
         ),
         const SizedBox(height: 16),

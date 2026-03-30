@@ -17,34 +17,37 @@ class PageHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final canPop = GoRouter.of(context).canPop();
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Text(
-          title,
-          style: textStyle.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-        if (canPop)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: GestureDetector(
-                onTap: onTap ?? () => GoRouter.of(context).pop(),
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey.shade100,
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Text(
+            title,
+            style: textStyle.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          if (canPop)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: GestureDetector(
+                  onTap: onTap ?? () => GoRouter.of(context).pop(),
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey.shade100,
+                    ),
+                    child: const Icon(Icons.arrow_back_ios, size: 18),
                   ),
-                  child: const Icon(Icons.arrow_back_ios, size: 18),
                 ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }

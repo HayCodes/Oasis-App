@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oasis/components/themes/app_theme.dart';
-import 'package:oasis/components/widgets/home_screen/faq.dart';
+import 'package:oasis/components/widgets/faq.dart';
 import 'package:oasis/components/widgets/page_header.dart';
 
 class Support extends StatelessWidget {

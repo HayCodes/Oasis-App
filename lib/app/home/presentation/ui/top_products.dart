@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:oasis/app/shop/product_card.dart';
 import 'package:oasis/components/themes/app_theme.dart';
-import 'package:oasis/components/widgets/home_screen/product_card.dart';
 import 'package:oasis/services/product.dart';
 
 class TopProducts extends StatefulWidget {

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oasis/app/sign_in/presentation/bloc/auth.bloc.dart';
+import 'package:oasis/app/sign_in/presentation/bloc/auth.event.dart';
+import 'package:oasis/app/sign_in/presentation/bloc/auth.state.dart';
 import 'package:oasis/app/sign_in/presentation/ui/widgets/auth_widget.dart';
 import 'package:oasis/components/themes/app_theme.dart';
 import 'package:oasis/components/widgets/page_header.dart';
@@ -90,7 +94,9 @@ class _AuthState extends State<Auth> {
           hintText: 'hello@example.com',
           keyboardType: TextInputType.emailAddress,
           obscureText: false,
-          onChanged: (val) {},
+          onChanged: (val) {
+            context.read<AuthBloc>().add(EmailEvent(val));
+          },
         ),
 
         const SizedBox(height: 12),
@@ -101,7 +107,9 @@ class _AuthState extends State<Auth> {
           hintText: 'Enter your password',
           keyboardType: TextInputType.visiblePassword,
           obscureText: _obscurePassword,
-          onChanged: (val) {},
+          onChanged: (val) {
+            context.read<AuthBloc>().add(PasswordEvent(val));
+          },
           suffixIcon: IconButton(
             onPressed: () => setState(() {
               _obscurePassword = !_obscurePassword;
@@ -118,37 +126,54 @@ class _AuthState extends State<Auth> {
 
         const SizedBox(height: 8),
 
-        // Forgot password
-        forgotPassword(context),
+        BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {
+            debugPrint('--- STATE CHANGED ---');
+            debugPrint('Email: ${state.email}');
+            debugPrint('Password: ${state.password}');
+          },
+          builder: (context, state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Forgot password
+                forgotPassword(context),
 
-        const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-        // Login button
-        buildActionButton('Login', onPressed: () {}),
+                // Login button
+                buildActionButton('Login', onPressed: () {}),
 
-        const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-        // OR divider
-        Row(
-          children: [
-            Expanded(child: Divider(color: Colors.grey.shade300)),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                'OR',
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-              ),
-            ),
-            Expanded(child: Divider(color: Colors.grey.shade300)),
-          ],
+                // OR divider
+                const Row(
+                  children: [
+                    Expanded(child: Divider(color: AppColors.inputBorder)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        'OR',
+                        style: TextStyle(
+                          color: AppColors.inputBorder,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: AppColors.inputBorder)),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // Continue with Google
+                buildGoogleButton(onPressed: () {}),
+
+                const SizedBox(height: 24),
+              ],
+            );
+          },
         ),
-
-        const SizedBox(height: 24),
-
-        // Continue with Google
-        buildGoogleButton(onPressed: () {}),
-
-        const SizedBox(height: 24),
 
         // Sign up link
         Row(

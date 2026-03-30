@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oasis/app/404/error_page.dart';
 import 'package:oasis/app/blog/blog_screen.dart';
@@ -8,10 +9,12 @@ import 'package:oasis/app/home/home_screen.dart';
 import 'package:oasis/app/profile/profile.dart';
 import 'package:oasis/app/shop/shop_screen.dart';
 import 'package:oasis/app/sign_in/login.dart';
+import 'package:oasis/app/sign_in/presentation/bloc/auth.bloc.dart';
+import 'package:oasis/app/sign_up/presentation/bloc/sign_up.bloc.dart';
 import 'package:oasis/app/sign_up/presentation/ui/signup.dart';
 import 'package:oasis/app/support/support.dart';
 import 'package:oasis/components/widgets/home_screen/bottom_nav.dart';
-import 'package:oasis/components/widgets/splash_screen.dart';
+import 'package:oasis/components/widgets/home_screen/splash_screen.dart';
 import 'package:oasis/services/router/app_router_constants.dart';
 
 class AppRouter {
@@ -23,31 +26,31 @@ class AppRouter {
         path: '/',
         name: RouteNames.splashScreen,
         pageBuilder: (context, state) =>
-        const MaterialPage(child: SplashScreen()),
+            const MaterialPage(child: SplashScreen()),
       ),
       GoRoute(
         path: '/auth',
         name: RouteNames.auth,
-        pageBuilder: (context, state) =>
-        const MaterialPage(child: Auth()),
+        builder: (context, state) =>
+            BlocProvider(create: (context) => AuthBloc(), child: const Auth()),
       ),
       GoRoute(
         path: '/signup',
         name: RouteNames.signup,
-        pageBuilder: (context, state) =>
-        const MaterialPage(child: SignUp()),
+        builder: (context, state) => BlocProvider(
+          create: (context) => SignUpBloc(),
+          child: const SignUp(),
+        ),
       ),
       GoRoute(
         path: '/support',
         name: RouteNames.support,
-        pageBuilder: (context, state) =>
-        const MaterialPage(child: Support()),
+        pageBuilder: (context, state) => const MaterialPage(child: Support()),
       ),
       GoRoute(
         path: '/profile',
         name: RouteNames.profile,
-        pageBuilder: (context, state) =>
-        const MaterialPage(child: Profile()),
+        pageBuilder: (context, state) => const MaterialPage(child: Profile()),
       ),
 
       // ── Inside the shell (has bottom nav) ──
@@ -60,14 +63,13 @@ class AppRouter {
               GoRoute(
                 path: '/home',
                 name: RouteNames.home,
-                pageBuilder: (context, state) =>
-                    CustomTransitionPage(
-                      child: const HomeScreen(),
-                      transitionsBuilder: (context, animation,
-                          secondaryAnimation, child) =>
+                pageBuilder: (context, state) => CustomTransitionPage(
+                  child: const HomeScreen(),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) =>
                           FadeTransition(opacity: animation, child: child),
-                      transitionDuration: const Duration(milliseconds: 800),
-                    ),
+                  transitionDuration: const Duration(milliseconds: 800),
+                ),
               ),
             ],
           ),
@@ -77,7 +79,7 @@ class AppRouter {
                 path: '/shop',
                 name: RouteNames.shop,
                 pageBuilder: (context, state) =>
-                const MaterialPage(child: ShopScreen()),
+                    const MaterialPage(child: ShopScreen()),
               ),
             ],
           ),
@@ -87,7 +89,7 @@ class AppRouter {
                 path: '/blog',
                 name: RouteNames.blog,
                 pageBuilder: (context, state) =>
-                const MaterialPage(child: BlogScreen()),
+                    const MaterialPage(child: BlogScreen()),
               ),
             ],
           ),
@@ -97,7 +99,7 @@ class AppRouter {
                 path: '/categories',
                 name: RouteNames.categories,
                 pageBuilder: (context, state) =>
-                const MaterialPage(child: CategoryPage()),
+                    const MaterialPage(child: CategoryPage()),
                 routes: [
                   GoRoute(
                     path: ':slug',
@@ -105,7 +107,7 @@ class AppRouter {
                     pageBuilder: (context, state) {
                       final slug = state.pathParameters['slug']!;
                       final item = CategoryPage.categories.firstWhere(
-                            (cat) => cat.slug == slug,
+                        (cat) => cat.slug == slug,
                       );
                       return MaterialPage(child: CategoryViewPage(item: item));
                     },
@@ -117,7 +119,7 @@ class AppRouter {
         ],
       ),
     ],
-    errorPageBuilder: (context, state,) =>
-    const MaterialPage(child: ErrorPage()),
+    errorPageBuilder: (context, state) =>
+        const MaterialPage(child: ErrorPage()),
   );
 }

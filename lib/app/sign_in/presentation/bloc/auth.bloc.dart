@@ -4,15 +4,15 @@ import 'package:oasis/app/sign_in/presentation/bloc/auth.state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(const AuthState()) {
-    void _emailEvent(EmailEvent event, Emitter<AuthState> emit) {
+    void emailEvent(EmailEvent event, Emitter<AuthState> emit) {
       emit(state.copyWith(email: event.email));
     }
 
-    void _passwordEvent(PasswordEvent event, Emitter<AuthState> emit) {
+    void passwordEvent(PasswordEvent event, Emitter<AuthState> emit) {
       emit(state.copyWith(password: event.password));
     }
 
-    on<EmailEvent>(_emailEvent);
-    on<PasswordEvent>(_passwordEvent);
+    on<EmailEvent>(emailEvent);
+    on<PasswordEvent>(passwordEvent);
   }
 }

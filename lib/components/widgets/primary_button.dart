@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Widget buildPrimaryButton(String title, {required VoidCallback onPressed}) {
+Widget buildPrimaryButton(String title, {required VoidCallback? onPressed}) {
   return SizedBox(
     height: 56,
     child: ElevatedButton(
