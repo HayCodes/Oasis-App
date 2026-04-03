@@ -3,10 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oasis/app/404/error_page.dart';
 import 'package:oasis/app/blog/blog_screen.dart';
-import 'package:oasis/app/categories/categories_screen.dart';
-import 'package:oasis/app/categories/categories_view_page.dart';
+import 'package:oasis/app/categories/presentation/ui/categories_screen.dart';
+import 'package:oasis/app/categories/presentation/ui/categories_view_page.dart';
 import 'package:oasis/app/home/home_screen.dart';
 import 'package:oasis/app/profile/profile.dart';
+import 'package:oasis/app/shop/presentation/bloc/shop.bloc.dart';
 import 'package:oasis/app/shop/shop_screen.dart';
 import 'package:oasis/app/sign_in/login.dart';
 import 'package:oasis/app/sign_in/presentation/bloc/auth.bloc.dart';
@@ -15,6 +16,7 @@ import 'package:oasis/app/sign_up/presentation/ui/signup.dart';
 import 'package:oasis/app/support/support.dart';
 import 'package:oasis/components/widgets/home_screen/bottom_nav.dart';
 import 'package:oasis/components/widgets/home_screen/splash_screen.dart';
+import 'package:oasis/locator.dart';
 import 'package:oasis/services/router/app_router_constants.dart';
 
 class AppRouter {
@@ -38,7 +40,7 @@ class AppRouter {
         path: '/signup',
         name: RouteNames.signup,
         builder: (context, state) => BlocProvider(
-          create: (context) => SignUpBloc(),
+          create: (context) => sl<SignUpBloc>(),
           child: const SignUp(),
         ),
       ),
@@ -64,7 +66,10 @@ class AppRouter {
                 path: '/home',
                 name: RouteNames.home,
                 pageBuilder: (context, state) => CustomTransitionPage(
-                  child: const HomeScreen(),
+                  child: BlocProvider(
+                    create: (context) => sl<ShopBloc>(),
+                    child: const HomeScreen(),
+                  ),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) =>
                           FadeTransition(opacity: animation, child: child),
@@ -106,10 +111,7 @@ class AppRouter {
                     name: RouteNames.categoryView,
                     pageBuilder: (context, state) {
                       final slug = state.pathParameters['slug']!;
-                      final item = CategoryPage.categories.firstWhere(
-                        (cat) => cat.slug == slug,
-                      );
-                      return MaterialPage(child: CategoryViewPage(item: item));
+                      return MaterialPage(child: CategoryViewPage(slug: slug));
                     },
                   ),
                 ],

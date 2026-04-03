@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:oasis/app/profile/models/profile.model.dart';
 import 'package:oasis/common/common.dart';
 
 class SecureStorage {
@@ -37,18 +38,18 @@ class SecureStorage {
     }
   }
 
-  // Future<void> updateUserModel(UserModel user) async {
-  //   final json = jsonEncode(user.toJson());
-  //   await write(DbKeys.USER_MODEL, json);
-  // }
-  //
-  // Future<UserModel?> get userModel async {
-  //   final json = await read(DbKeys.USER_MODEL);
-  //   if (json != null) {
-  //     final Map<String, dynamic> decoded = jsonDecode(json);
-  //     return UserModel.fromJson(decoded);
-  //   } else {
-  //     return null;
-  //   }
-  // }
+  Future<void> updateUserModel(UserModel user) async {
+    final json = jsonEncode(user.toJson());
+    await write(DbKeys.USER_MODEL, json);
+  }
+
+  Future<UserModel?> get userModel async {
+    final json = await read(DbKeys.USER_MODEL);
+    if (json != null) {
+      final Map<String, dynamic> decoded = jsonDecode(json);
+      return UserModel.fromJson(decoded);
+    } else {
+      return null;
+    }
+  }
 }

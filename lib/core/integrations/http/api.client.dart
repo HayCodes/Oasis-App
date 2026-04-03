@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
+import 'package:oasis/app/sign_up/data/auth.token.handler.dart';
 import 'package:oasis/common/common.dart';
-import 'package:oasis/common/logger.dart';
 import 'package:oasis/core/database/database.dart';
 import 'package:oasis/environment.dart';
 
@@ -8,12 +10,13 @@ class ApiClient {
   ApiClient(
     this.dio,
     this.secureStorage,
-    this.sharedPrefs, {
-    required this.onLogout,
-  }) {
+    this.sharedPrefs,
+    this.sessionService,
+  ) {
     dio.options
       ..baseUrl = appConfig.baseUrl
-      ..connectTimeout = const Duration(milliseconds: 15000)
+      ..connectTimeout = const Duration(seconds: 300)
+      ..receiveTimeout = const Duration(seconds: 300)
       ..headers.addAll({
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -30,6 +33,8 @@ class ApiClient {
             'url': options.uri,
             'method': options.method,
             'data': options.data,
+            'auth_token': options.headers['auth_token'],
+            'device_id': options.headers['device_id'],
           }, 'on-request');
 
           return handler.next(options);
@@ -47,18 +52,21 @@ class ApiClient {
             'type': 'error',
             'url': e.requestOptions.uri,
             'data': e.response?.data,
+            'status': e.response?.statusCode,
+            'message': e.message,
+            'error_type': e.type.name,
           }, 'on-error');
           return handler.next(e);
         },
       ),
-      TokenInterceptor(client: this, onLogout: onLogout),
+      TokenInterceptor(client: this, sessionService: sessionService),
     ]);
   }
 
   final Dio dio;
   final SecureStorage secureStorage;
   final SharedPrefs sharedPrefs;
-  final VoidCallback onLogout; // injected, not hardcoded
+  final SessionService sessionService;
 
   Future<Response> get(
     String url, {

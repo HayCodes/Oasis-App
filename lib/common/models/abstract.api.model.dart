@@ -5,9 +5,9 @@ class AbstractApiResponse {
   AbstractApiResponse({required this.status, this.message, this.data});
 
   AbstractApiResponse.fromJson(DynamicMap json) {
-    status = json['status'] == true;
+    status = !json.containsKey('status') || json['status'] == true;
     message = json['message'] ?? AppTexts.GENERIC_ERROR;
-    data = json['data'];
+    data = json.containsKey('data') ? json['data'] : json;
   }
 
   bool status = false;

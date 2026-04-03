@@ -6,3 +6,5 @@ enum PlatformType {
 
   final String value;
 }
+
+enum FetchStatus { initial, loading, success, failure }

@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:oasis/app/shop/models/product.model.dart';
+import 'package:oasis/app/shop/presentation/bloc/shop.bloc.dart';
+import 'package:oasis/app/shop/presentation/bloc/shop.events.dart';
 import 'package:oasis/app/shop/product_detail_screen.dart';
 import 'package:oasis/components/themes/app_theme.dart';
-import 'package:oasis/services/product.dart';
 
 class ProductCard extends StatefulWidget {
 
@@ -16,23 +19,31 @@ class ProductCard extends StatefulWidget {
 }
 
 class _ProductCardState extends State<ProductCard> {
-  bool _isFavorite = false;
+  // bool _isFavorite = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _isFavorite = widget.product.isFavorite;
-  }
+  bool get _isNew =>
+      DateTime
+          .now()
+          .difference(widget.product.createdAt)
+          .inDays <= 30;
 
+  bool get _isOnSale => widget.product.price.isOnSale;
+
+  double get _displayPrice => widget.product.price.effectivePrice;
+
+  double get _originalPrice => widget.product.price.amount;
+
+  // type 'List<dynamic>' is not a subtype of type 'Map<String,dynamic>' in type cast
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        context.read<ShopBloc>().add(FetchProductDetail(widget.product.slug));
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) =>
-                ProductDetailScreen(product: widget.product),
+                const ProductDetailScreen(),
           ),
         );
       },
@@ -49,7 +60,7 @@ class _ProductCardState extends State<ProductCard> {
                   // Product Image
                   ClipRRect(
                     child: CachedNetworkImage(
-                      imageUrl: widget.product.imageUrl,
+                      imageUrl: widget.product.featuredImage.src,
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
@@ -79,45 +90,41 @@ class _ProductCardState extends State<ProductCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (widget.product.isNew)
+                        if (_isNew)
                           _buildBadge('NEW', AppColors.black, Colors.white),
-                        if (widget.product.badge != null) ...[
-                          if (widget.product.isNew) const SizedBox(height: 6),
-                          _buildBadge(
-                            widget.product.badge!,
-                            AppColors.accent,
-                            Colors.white,
-                          ),
+                        if (_isOnSale) ...[
+                          if (_isNew) const SizedBox(height: 6),
+                          _buildBadge('SALE', AppColors.accent, Colors.white),
                         ],
                       ],
                     ),
                   ),
 
                   // Favorite Button
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() => _isFavorite = !_isFavorite);
-                      },
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          _isFavorite ? Icons.favorite : Icons.favorite_border,
-                          size: 16,
-                          color: _isFavorite
-                              ? AppColors.accent
-                              : AppColors.textMuted,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Positioned(
+                  //   top: 8,
+                  //   right: 8,
+                  //   child: GestureDetector(
+                  //     onTap: () {
+                  //       setState(() => _isFavorite = !_isFavorite);
+                  //     },
+                  //     child: Container(
+                  //       width: 36,
+                  //       height: 36,
+                  //       decoration: const BoxDecoration(
+                  //         color: Colors.white,
+                  //         shape: BoxShape.circle,
+                  //       ),
+                  //       child: Icon(
+                  //         _isFavorite ? Icons.favorite : Icons.favorite_border,
+                  //         size: 16,
+                  //         color: _isFavorite
+                  //             ? AppColors.accent
+                  //             : AppColors.textMuted,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -138,7 +145,7 @@ class _ProductCardState extends State<ProductCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.product.brand.toUpperCase(),
+                          widget.product.category.name.toUpperCase(),
                           style: GoogleFonts.inter(
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
@@ -166,19 +173,19 @@ class _ProductCardState extends State<ProductCard> {
                         Row(
                           children: [
                             Text(
-                              '\$${widget.product.price.toStringAsFixed(0)}',
+                              '\$${_displayPrice.toStringAsFixed(0)}',
                               style: GoogleFonts.inter(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: widget.product.isOnSale
+                                color: _isOnSale
                                     ? AppColors.accent
                                     : AppColors.textPrimary,
                               ),
                             ),
-                            if (widget.product.isOnSale) ...[
+                            if (_isOnSale) ...[
                               const SizedBox(width: 6),
                               Text(
-                                '\$${widget.product.originalPrice!.toStringAsFixed(0)}',
+                                '\$${_originalPrice.toStringAsFixed(0)}',
                                 style: GoogleFonts.inter(
                                   fontSize: 11,
                                   color: AppColors.textMuted,
@@ -192,13 +199,13 @@ class _ProductCardState extends State<ProductCard> {
                         Row(
                           children: [
                             const Icon(
-                              Icons.star_rounded,
+                              Icons.local_fire_department_rounded,
                               size: 12,
                               color: AppColors.accent,
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              widget.product.rating.toString(),
+                              widget.product.popularity.toString(),
                               style: GoogleFonts.inter(
                                 fontSize: 11,
                                 color: AppColors.textSecondary,

@@ -11,4 +11,5 @@ class RouteNames {
   static const String orders = 'orders';
   static const String orderDetail = 'order-detail';
   static const String profile = 'profile';
+  static const String product = 'product';
 }

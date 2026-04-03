@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:oasis/app/home/presentation/ui/categories.dart';
 import 'package:oasis/app/home/presentation/ui/home_widgets.dart';
-import 'package:oasis/app/home/presentation/ui/product_pagination.dart';
 import 'package:oasis/app/home/presentation/ui/top_products.dart';
+import 'package:oasis/app/shop/presentation/bloc/shop.bloc.dart';
+import 'package:oasis/app/shop/presentation/bloc/shop.events.dart';
+import 'package:oasis/app/shop/presentation/bloc/shop.state.dart';
+import 'package:oasis/common/common.dart';
 import 'package:oasis/components/themes/app_theme.dart';
 import 'package:oasis/components/widgets/faq.dart';
 import 'package:oasis/components/widgets/home_screen/menu_drawer.dart';
-import 'package:oasis/services/product.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,50 +20,49 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final int _selectedCategory = 0;
-  final bool _isGridView = true;
-  static const int _pageSize = 4;
-  int _visibleCount = _pageSize;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _productsKey = GlobalKey();
+  bool _isGridView = true;
+  bool _fetchInitiated = false;
 
-  List<Product> get _allFilteredProducts {
-    if (_selectedCategory == 0) {
-      return sampleProducts;
-    } else if (_selectedCategory == 1) {
-      return sampleProducts.where((p) => p.isNew).toList();
-    } else {
-      final cat = categories[_selectedCategory];
-      return sampleProducts.where((p) => p.category == cat).toList();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_fetchInitiated) {
+      _fetchInitiated = true;
+      context.read<ShopBloc>()
+        .add(const FetchTopProducts());
     }
   }
 
-  List<Product> get _filteredProducts {
-    return _allFilteredProducts.take(_visibleCount).toList();
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
   }
 
-  void _showMore() {
-    setState(() {
-      _visibleCount = (_visibleCount + _pageSize).clamp(
-        0,
-        sampleProducts.length,
-      );
-    });
+  void _onScroll() {
+    if (_isBottom) {
+      context.read<ShopBloc>().add(const FetchMoreProducts());
+    }
   }
 
-  void _collapse() {
-    setState(() {
-      _visibleCount = _pageSize;
-    });
-
-    Future.delayed(const Duration(milliseconds: 50), () {
-      Scrollable.ensureVisible(
-        _productsKey.currentContext!,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    });
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final max = _scrollController.position.maxScrollExtent;
+    final current = _scrollController.offset;
+    // trigger when within 300px of the bottom
+    return current >= max - 300;
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -71,30 +74,126 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _mainContainer() {
-    return CustomScrollView(
-      controller: _scrollController,
-      slivers: [
-        const SliverToBoxAdapter(child: HomeHeader()),
-        const SliverToBoxAdapter(child: HeroBanner()),
-        const SliverToBoxAdapter(child: Categories()),
-        SliverToBoxAdapter(
-          key: _productsKey,
-          child: TopProducts(
-            categories: categories,
-            filteredProducts: _filteredProducts,
-          ),
-        ),
-        ProductGrid(products: _filteredProducts, isGridView: _isGridView),
-        SliverToBoxAdapter(
-          child: PaginationFooter(
-            shownCount: _filteredProducts.length,
-            totalCount: _allFilteredProducts.length,
-            onShowMore: _showMore,
-            onCollapse: _collapse,
-          ),
-        ),
-        const SliverToBoxAdapter(child: FAQSection()),
-      ],
+    return BlocBuilder<ShopBloc, ShopState>(
+      builder: (context, state) {
+        return CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            const SliverToBoxAdapter(child: HomeHeader()),
+            const SliverToBoxAdapter(child: HeroBanner()),
+            const SliverToBoxAdapter(child: Categories()),
+
+            // Top Products header + toolbar
+            SliverToBoxAdapter(
+              key: _productsKey,
+              child: TopProducts(categories: extractCategories(state.topProducts)),
+            ),
+
+            // All Products grid
+            _buildProductsSliver(state),
+
+            // Loading indicator for pagination
+            if (state.allProductsStatus == FetchStatus.loading &&
+                state.allProducts.isNotEmpty)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1,
+                      color: AppColors.accent,
+                    ),
+                  ),
+                ),
+              ),
+
+            // End of list indicator
+            if (state.hasReachedMax && state.allProducts.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text(
+                      "YOU'VE SEEN IT ALL",
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textMuted,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+            const SliverToBoxAdapter(child: FAQSection()),
+          ],
+        );
+      },
     );
   }
-}
+
+  Widget _buildProductsSliver(ShopState state) {
+    // initial load
+    if (state.topProductsStatus == FetchStatus.loading &&
+        state.topProducts.isEmpty) {
+      return const SliverToBoxAdapter(
+        child: SizedBox(
+          height: 300,
+          child: Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 1,
+              color: AppColors.accent,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // failure
+    if (state.topProductsStatus == FetchStatus.failure &&
+        state.topProducts.isEmpty) {
+      return SliverToBoxAdapter(
+        child: SizedBox(
+          height: 300,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                    Icons.error_outline, color: AppColors.textMuted, size: 40),
+                const SizedBox(height: 12),
+                Text(
+                  state.errorMessage ?? 'Failed to load products.',
+                  style: GoogleFonts.inter(
+                      fontSize: 13, color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () =>
+                      context.read<ShopBloc>().add(const FetchTopProducts()),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    color: AppColors.textPrimary,
+                    child: Text(
+                      'RETRY',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // ✅ Show top products instead of allProducts
+    return ProductGrid(products: state.topProducts, isGridView: _isGridView);
+  }}

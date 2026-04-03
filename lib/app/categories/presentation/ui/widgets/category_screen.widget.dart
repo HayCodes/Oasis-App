@@ -1,158 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:oasis/components/widgets/page_header.dart';
-
+import 'package:oasis/app/categories/models/categories.model.dart';
 import 'package:oasis/services/router/app_router_constants.dart';
 
-class CategoryItem {
-
-  const CategoryItem({
-    required this.slug,
-    required this.tags,
-    required this.title,
-    required this.description,
-    required this.productCount,
-    required this.imageUrl,
-  });
-  final String title;
-  final String slug;
-  final String description;
-  final int productCount;
-  final String imageUrl;
-  final List<String> tags;
-}
-
-class CategoryPage extends StatelessWidget {
-  const CategoryPage({super.key});
-
-  static const List<CategoryItem> categories = [
-    CategoryItem(
-      title: 'Decor',
-      slug: 'decor',
-      description:
-          'Bring warmth and personality to your home with décor pieces that reflect your unique style, turning every room into a captivating blend of luxury and comfort.',
-      productCount: 29,
-      imageUrl:
-          'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80',
-      tags: ['decor', 'furniture', 'home'],
-    ),
-    CategoryItem(
-      title: 'Bedroom',
-      slug: 'bedroom',
-      description:
-          'Bring warmth and personality to your home with décor pieces that reflect your unique style, turning every room into a captivating blend of luxury and comfort.',
-      productCount: 29,
-      imageUrl:
-          'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80',
-      tags: ['bedroom', 'bed', 'home'],
-    ),
-    CategoryItem(
-      title: 'Sitting Room',
-      tags: ['sitting', 'room', 'home'],
-      slug: 'sitting-room',
-      description:
-          'Bring warmth and personality to your home with décor pieces that reflect your unique style, turning every room into a captivating blend of luxury and comfort.',
-      productCount: 29,
-      imageUrl:
-          'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80',
-    ),
-    CategoryItem(
-      title: 'Accessories',
-      slug: 'accessories',
-      description:
-          'Bring warmth and personality to your home with décor pieces that reflect your unique style, turning every room into a captivating blend of luxury and comfort.',
-      productCount: 29,
-      imageUrl:
-          'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80',
-      tags: ['sitting', 'room', 'home'],
-    ),
-    CategoryItem(
-      title: 'Kitchen',
-      slug: 'kitchen',
-      description:
-          'Bring warmth and personality to your home with décor pieces that reflect your unique style, turning every room into a captivating blend of luxury and comfort.',
-      productCount: 29,
-      imageUrl:
-          'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80',
-      tags: ['sitting', 'room', 'home'],
-    ),
-    CategoryItem(
-      title: 'Lighting',
-      slug: 'lighting',
-      description:
-          'Bring warmth and personality to your home with décor pieces that reflect your unique style, turning every room into a captivating blend of luxury and comfort.',
-      productCount: 29,
-      imageUrl:
-          'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80',
-      tags: ['sitting', 'room', 'home'],
-    ),
-    CategoryItem(
-      title: 'Storage',
-      slug: 'storage',
-      description:
-          'Maximize your space with stylish storage solutions that combine functionality with high-end design, keeping your home organized and clutter-free while maintaining an elegant touch.',
-      productCount: 40,
-      imageUrl:
-          'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=600&q=80',
-      tags: ['sitting', 'room', 'home'],
-    ),
-    CategoryItem(
-      title: 'Office',
-      slug: 'office',
-      description:
-          'Transform your workspace into a modern hub of productivity with office furniture that promotes both comfort and innovation for a seamless work-life balance.',
-      productCount: 45,
-      imageUrl:
-          'https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=600&q=80',
-      tags: ['sitting', 'room', 'home'],
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final textStyle = Theme.of(context).textTheme;
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F7F4),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              PageHeader(
-                title: 'Categories',
-                textStyle: textStyle,
-                onTap: () {
-                  GoRouter.of(context).pop();
-                },
-              ),
-              // cards
-              const SizedBox(height: 24),
-              Text(
-                'Explore our collections and find the perfect furniture for your home',
-                style: textStyle.headlineSmall,
-              ),
-              const SizedBox(height: 24),
-              ...categories.map(
-                (cat) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: CategoryCard(item: cat),
-                ),
-              ),
-              const SizedBox(height: 24),
-              const _BottomCTA(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class CategoryCard extends StatelessWidget {
+  const CategoryCard({super.key, required this.category});
 
-  const CategoryCard({super.key, required this.item});
-  final CategoryItem item;
+  final Category category;
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +31,7 @@ class CategoryCard extends StatelessWidget {
             height: 200,
             width: double.infinity,
             child: Image.network(
-              item.imageUrl,
+              category.image,
               fit: BoxFit.cover,
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) return child;
@@ -219,7 +73,7 @@ class CategoryCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    '${item.productCount} products',
+                    '${category.productCount} products',
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -232,7 +86,7 @@ class CategoryCard extends StatelessWidget {
 
                 // Title
                 Text(
-                  item.title,
+                  category.name,
                   style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -245,7 +99,7 @@ class CategoryCard extends StatelessWidget {
 
                 // Description
                 Text(
-                  item.description,
+                  category.description,
                   style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xFF666666),
@@ -260,7 +114,7 @@ class CategoryCard extends StatelessWidget {
                   onTap: () {
                     GoRouter.of(context).pushNamed(
                       RouteNames.categoryView,
-                      pathParameters: {'slug': item.slug},
+                      pathParameters: {'slug': category.slug},
                     );
                   },
                 ),
@@ -274,8 +128,8 @@ class CategoryCard extends StatelessWidget {
 }
 
 class _ExploreButton extends StatefulWidget {
-
   const _ExploreButton({required this.onTap});
+
   final VoidCallback onTap;
 
   @override
@@ -331,8 +185,8 @@ class _ExploreButtonState extends State<_ExploreButton> {
   }
 }
 
-class _BottomCTA extends StatelessWidget {
-  const _BottomCTA();
+class BottomCTA extends StatelessWidget {
+  const BottomCTA({super.key});
 
   @override
   Widget build(BuildContext context) {

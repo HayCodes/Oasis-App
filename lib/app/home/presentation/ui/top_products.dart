@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:oasis/app/shop/models/product.model.dart';
+import 'package:oasis/app/shop/presentation/bloc/shop.bloc.dart';
+import 'package:oasis/app/shop/presentation/bloc/shop.state.dart';
 import 'package:oasis/app/shop/product_card.dart';
 import 'package:oasis/components/themes/app_theme.dart';
-import 'package:oasis/services/product.dart';
 
 class TopProducts extends StatefulWidget {
-
-  const TopProducts({
-    super.key,
-    required this.categories,
-    required this.filteredProducts,
-  });
+  const TopProducts({super.key, required this.categories});
   final List<String> categories;
-  final List<Product> filteredProducts;
 
   @override
   State<TopProducts> createState() => _TopProductsState();
@@ -26,28 +23,34 @@ class _TopProductsState extends State<TopProducts> {
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 30),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: Text('Top Products', style: textStyle.displayMedium),
-        ),
-        const SizedBox(height: 20),
-        CategoryTabs(
-          categories: widget.categories,
-          selectedIndex: _selectedCategory,
-          onCategorySelected: (index) =>
-              setState(() => _selectedCategory = index),
-        ),
-        ProductToolbar(
-          itemCount: widget.filteredProducts.length,
-          isGridView: _isGridView,
-          onSortTap: () => _showSortSheet(context),
-          onToggleView: () => setState(() => _isGridView = !_isGridView),
-        ),
-      ],
+    return BlocBuilder<ShopBloc, ShopState>(
+      buildWhen: (prev, curr) =>
+          prev.topProducts.length != curr.topProducts.length,
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 30),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: Text('Top Products', style: textStyle.displayMedium),
+            ),
+            const SizedBox(height: 20),
+            CategoryTabs(
+              categories: widget.categories,
+              selectedIndex: _selectedCategory,
+              onCategorySelected: (index) =>
+                  setState(() => _selectedCategory = index),
+            ),
+            ProductToolbar(
+              itemCount: state.topProducts.length,
+              isGridView: _isGridView,
+              onSortTap: () => _showSortSheet(context),
+              onToggleView: () => setState(() => _isGridView = !_isGridView),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -55,9 +58,7 @@ class _TopProductsState extends State<TopProducts> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.background,
-      shape: const RoundedRectangleBorder(
-
-      ),
+      shape: const RoundedRectangleBorder(),
       builder: (_) => const SortBottomSheet(),
     );
   }
@@ -66,7 +67,6 @@ class _TopProductsState extends State<TopProducts> {
 // ── CategoryTabs ────────────────────────────────────────────────────────────
 
 class CategoryTabs extends StatelessWidget {
-
   const CategoryTabs({
     super.key,
     required this.categories,
@@ -123,7 +123,6 @@ class CategoryTabs extends StatelessWidget {
 // ── ProductToolbar ───────────────────────────────────────────────────────────
 
 class ProductToolbar extends StatelessWidget {
-
   const ProductToolbar({
     super.key,
     required this.itemCount,
@@ -183,7 +182,6 @@ class ProductToolbar extends StatelessWidget {
 }
 
 class _ToolbarButton extends StatelessWidget {
-
   const _ToolbarButton({
     required this.icon,
     required this.label,
@@ -224,7 +222,7 @@ class ProductGrid extends StatelessWidget {
     required this.products,
     required this.isGridView,
   });
-  final List<Product> products; // replace dynamic with your Product type
+  final List<Product> products;
 
   final bool isGridView;
 

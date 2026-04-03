@@ -31,3 +31,7 @@ class TermsEvent extends SignUpEvent {
 
   final bool terms;
 }
+
+class SubmitSignUpEvent extends SignUpEvent {
+  const SubmitSignUpEvent();
+}

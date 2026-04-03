@@ -5,10 +5,12 @@ import 'package:oasis/app/sign_in/presentation/ui/widgets/auth_widget.dart';
 import 'package:oasis/app/sign_up/presentation/bloc/sign_up.bloc.dart';
 import 'package:oasis/app/sign_up/presentation/bloc/sign_up.event.dart';
 import 'package:oasis/app/sign_up/presentation/bloc/sign_up.state.dart';
+import 'package:oasis/common/common.dart';
 import 'package:oasis/components/themes/app_theme.dart';
 
 import 'package:oasis/components/widgets/page_header.dart';
 import 'package:oasis/components/widgets/primary_button.dart';
+import 'package:oasis/services/router/app_router_constants.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -170,12 +172,22 @@ class _SignUpState extends State<SignUp> {
 
         BlocConsumer<SignUpBloc, SignUpState>(
           listener: (context, state) {
+            if (state.status == FetchStatus.success) {
+              GoRouter.of(context).goNamed(RouteNames.home);
+            }
+            if (state.status == FetchStatus.failure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.error ?? 'Something went wrong')),
+              );
+            }
             debugPrint('--- STATE CHANGED ---');
             debugPrint('Name: ${state.name}');
             debugPrint('Email: ${state.email}');
             debugPrint('Password: ${state.password}');
             debugPrint('Confirm: ${state.passwordConfirmation}');
             debugPrint('Terms: ${state.terms}');
+            debugPrint('Submit: ${state.status}');
+            debugPrint('Submit: ${state.error}');
           },
           builder: (context, state) {
             return Column(
@@ -225,8 +237,14 @@ class _SignUpState extends State<SignUp> {
                 ),
                 const SizedBox(height: 16),
                 buildPrimaryButton(
-                  'Create Account',
-                  onPressed: state.terms ? () {} : null,
+                  state.status == FetchStatus.loading
+                      ? 'Creating...'
+                      : 'Create Account',
+                  onPressed: state.terms && state.status != FetchStatus.loading
+                      ? () => context.read<SignUpBloc>().add(
+                          const SubmitSignUpEvent(),
+                        )
+                      : null,
                 ),
                 const SizedBox(height: 24),
                 Row(
