@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:oasis/app/categories/presentation/bloc/category_content/category_content.bloc.dart';
-import 'package:oasis/app/shop/presentation/bloc/shop.bloc.dart';
+import 'package:oasis/app/shop/presentation/bloc/top_products/bloc.dart';
 import 'package:oasis/components/themes/app_theme.dart';
 import 'package:oasis/environment.dart';
 import 'package:oasis/locator.dart';
@@ -14,8 +14,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppManager.initializeDependencies();
   await sl.allReady();
-  print('🌍 Base URL: ${appConfig.baseUrl}'); // ✅ add this
-  print('🌍 ENV: ${appConfig.env}');
+  debugPrint('🌍 Base URL: ${appConfig.baseUrl}'); // ✅ add this
+  debugPrint('🌍 ENV: ${appConfig.env}');
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -24,32 +24,34 @@ void main() async {
     ),
   );
   try {
-    final bloc = sl<ShopBloc>();
+    final bloc = sl<TopProductsBloc>();
     final categoryBloc = sl<CategoryContentBloc>();
-    print('✅ ShopBloc resolved: $bloc');
-    print('CategoryContentBloc resolved: $categoryBloc');
+    debugPrint('✅ ShopBloc resolved: $bloc');
+    debugPrint('CategoryContentBloc resolved: $categoryBloc');
   } catch (e) {
-    print('❌ ShopBloc failed: $e');
+    debugPrint('❌ ShopBloc failed: $e');
   }
 
   runApp(const OasisApp());
 }
+
+final _appRouter = AppRouter();
 
 class OasisApp extends StatelessWidget {
   const OasisApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      builder: (context, child) => MaterialApp.router(
-        title: 'Oasis',
-        debugShowCheckedModeBanner: false,
-        routerConfig: AppRouter().router,
-        theme: AppTheme.light,
-        builder: (context, child) => MultiBlocProvider(
-          providers: AppBlocProviders.allBlocProviders,
-          child: child!,
-        ),
+    return MultiBlocProvider(
+      providers: AppBlocProviders.allBlocProviders,
+      child: ScreenUtilInit(
+        builder: (context, child) =>
+            MaterialApp.router(
+              title: 'Oasis',
+              debugShowCheckedModeBanner: false,
+              routerConfig: _appRouter.router,
+              theme: AppTheme.light,
+            ),
       ),
     );
   }

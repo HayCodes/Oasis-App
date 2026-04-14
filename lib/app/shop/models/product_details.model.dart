@@ -24,16 +24,20 @@ class ProductDetail {
     description: json['description'] as String,
     price: ProductPrice.fromJson(json['price'] as Map<String, dynamic>),
     popularity: json['popularity'] as int,
-    colors: List<String>.from(json['colors'] as List),
+    colors: List<String>.from(json['colors'] ?? []),
     rating: (json['rating'] as num).toDouble(),
     featuredImage: FeaturedImage.fromJson(
       json['featuredImage'] as Map<String, dynamic>,
     ),
-    images: List<String>.from(json['images'] as List),
+    images: json['images'] != null
+        ? List<FeaturedImage>.from(
+            (json['images'] as List).map((e) => FeaturedImage.fromJson(e)),
+          )
+        : [],
     category: ProductCategory.fromJson(
       json['category'] as Map<String, dynamic>,
     ),
-    tags: List<String>.from(json['tags'] as List),
+    tags: List<String>.from(json['tags'] ?? []),
     createdAt: DateTime.parse(json['createdAt'] as String),
   );
 
@@ -45,7 +49,7 @@ class ProductDetail {
   final List<String> colors;
   final double rating;
   final FeaturedImage featuredImage;
-  final List<String> images;
+  final List<FeaturedImage> images;
   final ProductCategory category;
   final List<String> tags;
   final DateTime createdAt;

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:oasis/app/categories/presentation/bloc/categories/categories.bloc.dart';
 import 'package:oasis/app/categories/presentation/bloc/categories/categories.events.dart';
 import 'package:oasis/app/categories/presentation/bloc/categories/categories.state.dart';
+import 'package:oasis/app/categories/presentation/ui/widgets/category_card_skeleton.dart';
 import 'package:oasis/app/categories/presentation/ui/widgets/category_screen.widget.dart';
 import 'package:oasis/common/common.dart';
 import 'package:oasis/components/widgets/page_header.dart';
@@ -52,9 +53,13 @@ class _CategoryView extends StatelessWidget {
               BlocBuilder<CategoriesBloc, CategoriesState>(
                 builder: (context, state) {
                   return switch (state.categoriesStatus) {
-                    FetchStatus.initial || FetchStatus.loading => const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF6C5CE7),
+                    FetchStatus.initial || FetchStatus.loading => Column(
+                      children: List.generate(
+                        3,
+                        (_) => const Padding(
+                          padding: EdgeInsets.only(bottom: 16),
+                          child: CategoryCardSkeleton(),
+                        ),
                       ),
                     ),
                     FetchStatus.success => Column(

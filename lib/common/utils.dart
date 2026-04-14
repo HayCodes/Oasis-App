@@ -25,3 +25,4 @@ List<String> extractCategories(List<Product> products) {
   }
   return categories;
 }
+

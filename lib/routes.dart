@@ -6,8 +6,12 @@ import 'package:oasis/app/blog/blog_screen.dart';
 import 'package:oasis/app/categories/presentation/ui/categories_screen.dart';
 import 'package:oasis/app/categories/presentation/ui/categories_view_page.dart';
 import 'package:oasis/app/home/home_screen.dart';
+import 'package:oasis/app/profile/presentation/bloc/profile.bloc.dart';
 import 'package:oasis/app/profile/profile.dart';
-import 'package:oasis/app/shop/presentation/bloc/shop.bloc.dart';
+import 'package:oasis/app/shop/presentation/bloc/all_products/shop.bloc.dart';
+import 'package:oasis/app/shop/presentation/bloc/product_details/bloc.dart';
+import 'package:oasis/app/shop/presentation/bloc/top_products/bloc.dart';
+import 'package:oasis/app/shop/product_detail_screen.dart';
 import 'package:oasis/app/shop/shop_screen.dart';
 import 'package:oasis/app/sign_in/login.dart';
 import 'package:oasis/app/sign_in/presentation/bloc/auth.bloc.dart';
@@ -33,8 +37,10 @@ class AppRouter {
       GoRoute(
         path: '/auth',
         name: RouteNames.auth,
-        builder: (context, state) =>
-            BlocProvider(create: (context) => AuthBloc(), child: const Auth()),
+        builder: (context, state) => BlocProvider(
+          create: (context) => sl<AuthBloc>(),
+          child: const Auth(),
+        ),
       ),
       GoRoute(
         path: '/signup',
@@ -52,7 +58,23 @@ class AppRouter {
       GoRoute(
         path: '/profile',
         name: RouteNames.profile,
-        pageBuilder: (context, state) => const MaterialPage(child: Profile()),
+        builder: (context, state) => BlocProvider(
+          create: (context) => sl<ProfileBloc>(),
+          child: const Profile(),
+        ),
+      ),
+      GoRoute(
+        path: '/product/:slug',
+        name: RouteNames.productDetail,
+        builder: (context, state) {
+          debugPrint(
+              '>>> ROUTE HIT: ${state.pathParameters['slug']}');
+          final slug = state.pathParameters['slug']!;
+          return BlocProvider(
+            create: (context) => sl<ProductDetailBloc>(),
+            child: ProductDetailScreen(slug: slug),
+          );
+        },
       ),
 
       // ── Inside the shell (has bottom nav) ──
@@ -67,7 +89,7 @@ class AppRouter {
                 name: RouteNames.home,
                 pageBuilder: (context, state) => CustomTransitionPage(
                   child: BlocProvider(
-                    create: (context) => sl<ShopBloc>(),
+                    create: (context) => sl<TopProductsBloc>(),
                     child: const HomeScreen(),
                   ),
                   transitionsBuilder:
@@ -83,8 +105,10 @@ class AppRouter {
               GoRoute(
                 path: '/shop',
                 name: RouteNames.shop,
-                pageBuilder: (context, state) =>
-                    const MaterialPage(child: ShopScreen()),
+                builder: (context, state) => BlocProvider(
+                  create: (context) => sl<AllProductsBloc>(),
+                  child: const ShopScreen(),
+                ),
               ),
             ],
           ),

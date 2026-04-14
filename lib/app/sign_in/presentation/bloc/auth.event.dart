@@ -13,3 +13,7 @@ class PasswordEvent extends AuthEvent {
 
   final String password;
 }
+
+class SubmitLoginEvent extends AuthEvent {
+  const SubmitLoginEvent();
+}

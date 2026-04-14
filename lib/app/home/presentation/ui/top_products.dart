@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:oasis/app/shop/models/product.model.dart';
-import 'package:oasis/app/shop/presentation/bloc/shop.bloc.dart';
-import 'package:oasis/app/shop/presentation/bloc/shop.state.dart';
+import 'package:oasis/app/shop/presentation/bloc/top_products/bloc.dart';
+import 'package:oasis/app/shop/presentation/bloc/top_products/state.dart';
 import 'package:oasis/app/shop/product_card.dart';
 import 'package:oasis/components/themes/app_theme.dart';
 
@@ -23,7 +23,7 @@ class _TopProductsState extends State<TopProducts> {
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme;
 
-    return BlocBuilder<ShopBloc, ShopState>(
+    return BlocBuilder<TopProductsBloc, TopProductsState>(
       buildWhen: (prev, curr) =>
           prev.topProducts.length != curr.topProducts.length,
       builder: (context, state) {

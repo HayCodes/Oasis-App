@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oasis/app/categories/data/categories.repository.dart';
-import 'package:oasis/app/categories/models/category_content.model.dart';
 import 'package:oasis/app/categories/presentation/bloc/category_content/category_content.events.dart';
 import 'package:oasis/app/categories/presentation/bloc/category_content/category_content.state.dart';
 import 'package:oasis/common/common.dart';
@@ -22,26 +21,19 @@ class CategoryContentBloc
 
     final res = await _categoryRepository.getCategoryContent(event.slug);
 
-    if (res.status) {
-      final model = CategoryContentResponse.fromJson(
-        res.data as Map<String, dynamic>,
-      );
-      emit(
+    res.fold(
+      (error) => emit(
+        state.copyWith(contentStatus: FetchStatus.failure, errorMessage: error),
+      ),
+      (content) => emit(
         state.copyWith(
-          category: model.category,
-          tags: model.tags,
-          products: model.products,
-          relatedProducts: model.relatedProducts,
+          category: content.category,
+          tags: content.tags,
+          products: content.products,
+          relatedProducts: content.relatedProducts,
           contentStatus: FetchStatus.success,
         ),
-      );
-    } else {
-      emit(
-        state.copyWith(
-          contentStatus: FetchStatus.failure,
-          errorMessage: res.message,
-        ),
-      );
-    }
+      ),
+    );
   }
 }

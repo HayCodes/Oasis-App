@@ -1,15 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:oasis/app/shop/models/product.model.dart';
-import 'package:oasis/app/shop/presentation/bloc/shop.bloc.dart';
-import 'package:oasis/app/shop/presentation/bloc/shop.events.dart';
-import 'package:oasis/app/shop/product_detail_screen.dart';
 import 'package:oasis/components/themes/app_theme.dart';
+import 'package:oasis/services/router/app_router_constants.dart';
 
 class ProductCard extends StatefulWidget {
-
   const ProductCard({super.key, required this.product, this.isWide = false});
   final Product product;
   final bool isWide;
@@ -22,10 +19,7 @@ class _ProductCardState extends State<ProductCard> {
   // bool _isFavorite = false;
 
   bool get _isNew =>
-      DateTime
-          .now()
-          .difference(widget.product.createdAt)
-          .inDays <= 30;
+      DateTime.now().difference(widget.product.createdAt).inDays <= 30;
 
   bool get _isOnSale => widget.product.price.isOnSale;
 
@@ -33,18 +27,14 @@ class _ProductCardState extends State<ProductCard> {
 
   double get _originalPrice => widget.product.price.amount;
 
-  // type 'List<dynamic>' is not a subtype of type 'Map<String,dynamic>' in type cast
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.read<ShopBloc>().add(FetchProductDetail(widget.product.slug));
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                const ProductDetailScreen(),
-          ),
+        debugPrint('>>> CARD TAPPED: ${widget.product.slug}');
+        context.pushNamed(
+          RouteNames.productDetail,
+          pathParameters: {'slug': widget.product.slug},
         );
       },
       child: Container(
@@ -92,6 +82,16 @@ class _ProductCardState extends State<ProductCard> {
                       children: [
                         if (_isNew)
                           _buildBadge('NEW', AppColors.black, Colors.white),
+                      ],
+                    ),
+                  ),
+
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         if (_isOnSale) ...[
                           if (_isNew) const SizedBox(height: 6),
                           _buildBadge('SALE', AppColors.accent, Colors.white),

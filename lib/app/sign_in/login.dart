@@ -5,6 +5,7 @@ import 'package:oasis/app/sign_in/presentation/bloc/auth.bloc.dart';
 import 'package:oasis/app/sign_in/presentation/bloc/auth.event.dart';
 import 'package:oasis/app/sign_in/presentation/bloc/auth.state.dart';
 import 'package:oasis/app/sign_in/presentation/ui/widgets/auth_widget.dart';
+import 'package:oasis/common/common.dart';
 import 'package:oasis/components/themes/app_theme.dart';
 import 'package:oasis/components/widgets/page_header.dart';
 import 'package:oasis/services/router/app_router_constants.dart';
@@ -20,6 +21,10 @@ class _AuthState extends State<Auth> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+
+  void _onLoginPressed() {
+    context.read<AuthBloc>().add(const SubmitLoginEvent());
+  }
 
   @override
   void dispose() {
@@ -128,10 +133,16 @@ class _AuthState extends State<Auth> {
 
         BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
-            debugPrint('--- STATE CHANGED ---');
-            debugPrint('Email: ${state.email}');
-            debugPrint('Password: ${state.password}');
+            if (state.status == FetchStatus.success) {
+              GoRouter.of(context).goNamed(RouteNames.home);
+            }
+            if (state.status == FetchStatus.failure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.error ?? 'Something went wrong')),
+              );
+            }
           },
+          listenWhen: (previous, current) => previous.status != current.status,
           builder: (context, state) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -142,7 +153,14 @@ class _AuthState extends State<Auth> {
                 const SizedBox(height: 20),
 
                 // Login button
-                buildActionButton('Login', onPressed: () {}),
+                buildActionButton(
+                  state.status == FetchStatus.loading
+                      ? 'Logging In...'
+                      : 'Login',
+                  onPressed: state.status != FetchStatus.loading
+                      ? _onLoginPressed
+                      : null,
+                ),
 
                 const SizedBox(height: 24),
 

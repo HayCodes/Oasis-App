@@ -7,12 +7,7 @@ import 'package:oasis/core/database/database.dart';
 import 'package:oasis/environment.dart';
 
 class ApiClient {
-  ApiClient(
-    this.dio,
-    this.secureStorage,
-    this.sharedPrefs,
-    this.sessionService,
-  ) {
+  ApiClient(this.dio, this.secureStorage, this.sharedPrefs) {
     dio.options
       ..baseUrl = appConfig.baseUrl
       ..connectTimeout = const Duration(seconds: 300)
@@ -26,14 +21,14 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = await secureStorage.read(DbKeys.ACCESS_TOKEN);
-          options.headers['auth_token'] = token;
+          options.headers['Authorization'] = 'Bearer $token';
 
           AppLogger.info({
             'type': 'request',
             'url': options.uri,
             'method': options.method,
             'data': options.data,
-            'auth_token': options.headers['auth_token'],
+            'auth_token': options.headers['Authorization'],
             'device_id': options.headers['device_id'],
           }, 'on-request');
 
@@ -59,14 +54,19 @@ class ApiClient {
           return handler.next(e);
         },
       ),
-      TokenInterceptor(client: this, sessionService: sessionService),
+      TokenInterceptor(
+        client: this,
+        onLogout: () async {
+          await secureStorage.deleteAll();
+          await sharedPrefs.clear();
+        },
+      ),
     ]);
   }
 
   final Dio dio;
   final SecureStorage secureStorage;
   final SharedPrefs sharedPrefs;
-  final SessionService sessionService;
 
   Future<Response> get(
     String url, {
@@ -167,14 +167,20 @@ class ApiClient {
       switch (e.type) {
         case DioExceptionType.connectionTimeout:
         case DioExceptionType.receiveTimeout:
+        case DioExceptionType.sendTimeout:
           return Exception('Request timed out.');
         case DioExceptionType.badResponse:
           final status = e.response?.statusCode;
-          final msg = e.response?.data?['message'] ?? 'Server error';
+          final data = e.response?.data as Map<String, dynamic>?;
+          final msg = data?['message'] ?? 'Server error';
           return Exception('[$status] $msg');
         case DioExceptionType.connectionError:
           return Exception('No internet connection.');
-        default:
+        case DioExceptionType.cancel:
+          return Exception('Request was cancelled.');
+        case DioExceptionType.badCertificate:
+          return Exception('Bad certificate.');
+        case DioExceptionType.unknown:
           return Exception('Unexpected error: ${e.message}');
       }
     }

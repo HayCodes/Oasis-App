@@ -1,18 +1,32 @@
+// class TokenModel {
+//   TokenModel({this.auth_token, this.refreshCat});
+//
+//   TokenModel.fromJson(Map<String, dynamic> json) {
+//     auth_token = json['token'];
+//     refreshCat = json['refresh_cat'];
+//   }
+//
+//   String? auth_token;
+//   String? refreshCat;
+//
+//   Map<String, dynamic> toJson() {
+//     final data = <String, dynamic>{};
+//     data['token'] = auth_token;
+//     data['refresh_cat'] = refreshCat;
+//     return data;
+//   }
+// }
+
 class TokenModel {
-  TokenModel({this.auth_token, this.refreshCat});
+  const TokenModel({this.value, this.expiry});
 
-  TokenModel.fromJson(Map<String, dynamic> json) {
-    auth_token = json['auth_token'];
-    refreshCat = json['refresh_cat'];
+  factory TokenModel.fromJson(Map<String, dynamic> json) {
+    return TokenModel(
+      value: json['value'] as String?, // ✅ matches server field
+      expiry: json['expiry'] as int?,
+    );
   }
 
-  String? auth_token;
-  String? refreshCat;
-
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['auth_token'] = auth_token;
-    data['refresh_cat'] = refreshCat;
-    return data;
-  }
+  final String? value;
+  final int? expiry;
 }

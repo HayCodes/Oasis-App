@@ -4,14 +4,13 @@ import 'package:dio/dio.dart';
 import 'package:oasis/common/common.dart';
 import 'package:oasis/common/models/abstract.api.model.dart';
 import 'package:oasis/common/models/token.model.dart';
-import 'package:oasis/core/database/session.service.dart';
 import 'package:oasis/core/integrations/integrations.dart';
 
 class TokenInterceptor extends Interceptor {
-  TokenInterceptor({required this.client, required this.sessionService});
+  TokenInterceptor({required this.client, required this.onLogout});
 
   final ApiClient client;
-  final SessionService sessionService;
+  final Future<void> Function() onLogout;
 
   bool hasLogout = false;
   bool _isRefreshing = false;
@@ -47,7 +46,7 @@ class TokenInterceptor extends Interceptor {
         // Check if refresh was successful
         if (token != null) {
           // Retry the original request with new token
-          final clonedRequest = await _retry(options, token.auth_token ?? "");
+          final clonedRequest = await _retry(options, token.value ?? "");
           return handler.resolve(clonedRequest);
         }
 
@@ -67,7 +66,7 @@ class TokenInterceptor extends Interceptor {
   }
 
   void logMeOut() {
-    if (!hasLogout) sessionService.logout();
+    if (!hasLogout) onLogout();
     hasLogout = true;
 
     Future.delayed(const Duration(seconds: 5), () {
@@ -114,8 +113,7 @@ class TokenInterceptor extends Interceptor {
         final token = TokenModel.fromJson(res.data);
 
         await Future.wait([
-          client.secureStorage.write(DbKeys.ACCESS_TOKEN, token.auth_token),
-          client.secureStorage.write(DbKeys.REFRESH_TOKEN, token.refreshCat),
+          client.secureStorage.write(DbKeys.ACCESS_TOKEN, token.value),
         ]);
 
         _refreshCompleter!.complete(token);

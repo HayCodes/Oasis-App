@@ -21,7 +21,7 @@ class SigninRepository {
       final res = await dataSource.signIn(data);
       if (res.status) {
         final user = UserModel.fromJson(res.data['user']);
-        final token = TokenModel.fromJson(res.data['auth_token']);
+        final token = TokenModel.fromJson(res.data['token']);
 
         final updatedSettings = (sharedPrefs.userSettings)
           ..firstLaunch = false
@@ -29,8 +29,7 @@ class SigninRepository {
           ..isLoggedIn = true;
 
         await Future.wait([
-          secureStorage.write(DbKeys.ACCESS_TOKEN, token.auth_token),
-          secureStorage.write(DbKeys.REFRESH_TOKEN, token.refreshCat),
+          secureStorage.write(DbKeys.ACCESS_TOKEN, token.value),
           secureStorage.updateUserModel(user),
           sharedPrefs.updateUserSettings(updatedSettings),
         ]);

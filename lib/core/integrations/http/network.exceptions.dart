@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:oasis/common/common.dart';
 
 class NetworkExceptions {
-  static String getDioException(error) {
+  static String getDioException(dynamic error) {
     if (error is Exception) {
       try {
         if (error is DioException) {

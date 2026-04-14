@@ -50,7 +50,7 @@ class Endpoints {
   static String productsAll([String? query]) =>
       '/products${query != null && query.isNotEmpty ? '?$query' : ''}';
 
-  static String productDetails(String slug) => '/products/$slug';
+  static String productDetails(String id) => '/products/$id';
 
   ///////////////////////
   // INSPIRATION
@@ -99,7 +99,7 @@ class Endpoints {
   ///////////////////////
   static const String ORDERS_ALL = '/orders';
 
-  static String orderGet(String id) => '/api/orders/$id';
+  static String orderGet(String id) => '/orders/$id';
 }
 
 class AppTexts {

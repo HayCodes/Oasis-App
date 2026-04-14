@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:oasis/common/common.dart';
 import 'package:oasis/components/themes/app_theme.dart';
 import 'package:oasis/core/gen/fonts.gen.dart';
-import 'package:oasis/common/common.dart';
 
 class AppText extends StatelessWidget {
   const AppText(

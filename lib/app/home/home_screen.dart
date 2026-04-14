@@ -4,9 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:oasis/app/home/presentation/ui/categories.dart';
 import 'package:oasis/app/home/presentation/ui/home_widgets.dart';
 import 'package:oasis/app/home/presentation/ui/top_products.dart';
-import 'package:oasis/app/shop/presentation/bloc/shop.bloc.dart';
-import 'package:oasis/app/shop/presentation/bloc/shop.events.dart';
-import 'package:oasis/app/shop/presentation/bloc/shop.state.dart';
+import 'package:oasis/app/shop/presentation/bloc/top_products/bloc.dart';
+import 'package:oasis/app/shop/presentation/bloc/top_products/events.dart';
+import 'package:oasis/app/shop/presentation/bloc/top_products/state.dart';
 import 'package:oasis/common/common.dart';
 import 'package:oasis/components/themes/app_theme.dart';
 import 'package:oasis/components/widgets/faq.dart';
@@ -36,31 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.didChangeDependencies();
     if (!_fetchInitiated) {
       _fetchInitiated = true;
-      context.read<ShopBloc>()
+      context.read<TopProductsBloc>()
         .add(const FetchTopProducts());
     }
-  }
-
-  @override
-  void dispose() {
-    _scrollController
-      ..removeListener(_onScroll)
-      ..dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (_isBottom) {
-      context.read<ShopBloc>().add(const FetchMoreProducts());
-    }
-  }
-
-  bool get _isBottom {
-    if (!_scrollController.hasClients) return false;
-    final max = _scrollController.position.maxScrollExtent;
-    final current = _scrollController.offset;
-    // trigger when within 300px of the bottom
-    return current >= max - 300;
   }
 
 
@@ -74,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _mainContainer() {
-    return BlocBuilder<ShopBloc, ShopState>(
+    return BlocBuilder<TopProductsBloc, TopProductsState>(
       builder: (context, state) {
         return CustomScrollView(
           controller: _scrollController,
@@ -93,8 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildProductsSliver(state),
 
             // Loading indicator for pagination
-            if (state.allProductsStatus == FetchStatus.loading &&
-                state.allProducts.isNotEmpty)
+            if (state.topProductStatus == FetchStatus.loading &&
+                state.topProducts.isNotEmpty)
               const SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
@@ -107,25 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-            // End of list indicator
-            if (state.hasReachedMax && state.allProducts.isNotEmpty)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
-                  child: Center(
-                    child: Text(
-                      "YOU'VE SEEN IT ALL",
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textMuted,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
             const SliverToBoxAdapter(child: FAQSection()),
           ],
         );
@@ -133,9 +92,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildProductsSliver(ShopState state) {
+  Widget _buildProductsSliver(TopProductsState state) {
     // initial load
-    if (state.topProductsStatus == FetchStatus.loading &&
+    if (state.topProductStatus == FetchStatus.loading &&
         state.topProducts.isEmpty) {
       return const SliverToBoxAdapter(
         child: SizedBox(
@@ -151,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     // failure
-    if (state.topProductsStatus == FetchStatus.failure &&
+    if (state.topProductStatus == FetchStatus.failure &&
         state.topProducts.isEmpty) {
       return SliverToBoxAdapter(
         child: SizedBox(
@@ -171,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 16),
                 GestureDetector(
                   onTap: () =>
-                      context.read<ShopBloc>().add(const FetchTopProducts()),
+                      context.read<TopProductsBloc>().add(const FetchTopProducts()),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 12),

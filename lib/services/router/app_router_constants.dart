@@ -12,4 +12,7 @@ class RouteNames {
   static const String orderDetail = 'order-detail';
   static const String profile = 'profile';
   static const String product = 'product';
+  static const String productDetail = 'product-detail';
+  static const String cart = 'cart';
+  static const String checkout = 'checkout';
 }

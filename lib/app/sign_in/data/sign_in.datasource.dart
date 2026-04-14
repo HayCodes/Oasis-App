@@ -8,13 +8,15 @@ class SignInDataSource {
 
   final ApiClient client;
 
-  Future<AbstractApiResponse> signIn(SignInDto data) async{
+  Future<AbstractApiResponse> signIn(SignInDto data) async {
     try {
-      final res = await client.post(Endpoints.LOGIN, data: {
-        'email': data.email,
-        'password': data.password});
+      final res = await client.post(
+        Endpoints.LOGIN,
+        data: {'email': data.email, 'password': data.password},
+        headers: {"X-Client-Type": "mobile"},
+      );
       return handleResponse(res);
-    } catch(e) {
+    } catch (e) {
       rethrow;
     }
   }

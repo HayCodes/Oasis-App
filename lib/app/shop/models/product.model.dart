@@ -19,19 +19,17 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) => Product(
     id: json['id'] as int,
     name: json['name'] as String,
-    slug: json['slug'] as String? ?? '',
+    slug: json['slug'] as String? ?? json['id'].toString(),
     price: ProductPrice.fromJson(json['price'] as Map<String, dynamic>),
     popularity: json['popularity'] as int,
-    colors: (json['colors'] as List<dynamic>).map((e) => e as String).toList(),
+    colors: List<String>.from(json['colors'] ?? []),
     featuredImage: FeaturedImage.fromJson(
       json['featuredImage'] as Map<String, dynamic>,
     ),
-    category: ProductCategory.fromJson(
-      json['category'] as Map<String, dynamic>,
-    ),
-    tags: json['tags'] != null
-        ? List<String>.from(json['tags'] as List)
-        : const [],
+    category: json['category'] != null
+        ? ProductCategory.fromJson(json['category'] as Map<String, dynamic>)
+        : ProductCategory.empty(),
+    tags: List<String>.from(json['tags'] ?? []),
     createdAt: DateTime.parse(json['createdAt'] as String),
   );
 

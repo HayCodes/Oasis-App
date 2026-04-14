@@ -2,16 +2,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:oasis/app/shop/models/product.model.dart';
+import 'package:intl/intl.dart';
 import 'package:oasis/app/shop/models/product_details.model.dart';
-import 'package:oasis/app/shop/presentation/bloc/shop.bloc.dart';
-import 'package:oasis/app/shop/presentation/bloc/shop.state.dart';
-import 'package:oasis/app/shop/product_card.dart';
+import 'package:oasis/app/shop/presentation/bloc/product_details/bloc.dart';
+import 'package:oasis/app/shop/presentation/bloc/product_details/events.dart';
+import 'package:oasis/app/shop/presentation/bloc/product_details/state.dart';
+import 'package:oasis/app/shop/presentation/ui/product_details_widget.dart';
 import 'package:oasis/common/common.dart';
 import 'package:oasis/components/themes/app_theme.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  const ProductDetailScreen({super.key});
+  const ProductDetailScreen({super.key, required this.slug});
+  final String slug;
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -21,14 +23,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   String _selectedSize = '';
   bool _isFavorite = false;
 
+  @override
+  void initState() {
+    super.initState();
+    context.read<ProductDetailBloc>().add(FetchProductDetail(widget.slug));
+  }
+
   // sizes are not in the model yet — keeping static until API provides them
   final List<String> _sizes = ['XS', 'S', 'M', 'L', 'XL'];
+  final formatter = NumberFormat.currency(symbol: r"$");
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ShopBloc, ShopState>(
+    return BlocBuilder<ProductDetailBloc, ProductDetailState>(
       builder: (context, state) {
-        if (state.productDetailStatus == FetchStatus.loading) {
+        if (state.productDetailsStatus == FetchStatus.initial ||
+            state.productDetailsStatus == FetchStatus.loading) {
           return const Scaffold(
             backgroundColor: AppColors.background,
             body: Center(
@@ -40,8 +50,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           );
         }
 
-        if (state.productDetailStatus == FetchStatus.failure ||
-            state.productDetail == null) {
+        if (state.productDetailsStatus == FetchStatus.failure ||
+            state.product == null) {
           return Scaffold(
             backgroundColor: AppColors.background,
             appBar: AppBar(
@@ -86,7 +96,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           );
         }
 
-        final product = state.productDetail!;
+        final product = state.product!;
 
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -98,7 +108,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   SliverToBoxAdapter(child: _buildProductInfo(product)),
                   if (state.relatedProducts.isNotEmpty) ...[
                     SliverToBoxAdapter(child: _buildRelatedHeader()),
-                    _buildRelatedGrid(state.relatedProducts),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: BuildRelatedProducts(
+                          products: state.relatedProducts,
+                        ),
+                      ),
+                    ),
                   ],
                   const SliverToBoxAdapter(child: SizedBox(height: 120)),
                 ],
@@ -198,7 +215,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                productDetail.price.amount.toString(),
+                formatter.format(productDetail.price.amount),
                 style: GoogleFonts.inter(
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
@@ -402,23 +419,23 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _buildRelatedGrid(List<Product> products) {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      sliver: SliverGrid(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) => ProductCard(product: products[index]),
-          childCount: products.length,
-        ),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.62,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-      ),
-    );
-  }
+  // Widget _buildRelatedGrid(List<Product> products) {
+  //   return SliverPadding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 16),
+  //     sliver: SliverGrid(
+  //       delegate: SliverChildBuilderDelegate(
+  //         (context, index) => ProductCard(product: products[index]),
+  //         childCount: products.length,
+  //       ),
+  //       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+  //         crossAxisCount: 2,
+  //         childAspectRatio: 0.62,
+  //         crossAxisSpacing: 12,
+  //         mainAxisSpacing: 12,
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildInfoRow(IconData icon, String text) {
     return Row(
@@ -501,7 +518,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   // best-effort named color parser
-  Color _namedColorToColor(String name) {
+  Color _namedColorToColor(String value) {
+    final trimmed = value.trim();
+
+    // Handle hex colors like #D8D8D8 or #FFF
+    if (trimmed.startsWith('#')) {
+      try {
+        String hex = trimmed.substring(1); // remove '#'
+        if (hex.length == 3) {
+          // expand shorthand #FFF → FFFFFF
+          hex = hex.split('').map((c) => '$c$c').join();
+        }
+        if (hex.length == 6) hex = 'FF$hex'; // add full opacity
+        return Color(int.parse(hex, radix: 16));
+      } catch (_) {
+        return Colors.grey.shade300;
+      }
+    }
+
+    // Fallback: named colors
     const map = {
       'red': Colors.red,
       'blue': Colors.blue,
@@ -516,6 +551,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       'yellow': Colors.yellow,
       'brown': Colors.brown,
     };
-    return map[name.toLowerCase()] ?? Colors.grey.shade300;
+    return map[trimmed.toLowerCase()] ?? Colors.grey.shade300;
   }
 }
