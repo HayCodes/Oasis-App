@@ -3,6 +3,7 @@ class DbKeys {
   static const REFRESH_TOKEN = 'REFRESH_TOKEN';
   static const USER_MODEL = 'USER_MODEL';
   static const USER_SETTINGS = 'USER_SETTINGS';
+  static const TOKEN_EXPIRY = 'TOKEN_EXPIRY';
 }
 
 class AppUrls {

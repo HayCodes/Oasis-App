@@ -5,14 +5,12 @@ import 'package:oasis/app/categories/data/categories.repository.dart';
 import 'package:oasis/app/categories/presentation/bloc/category_content/category_content.bloc.dart';
 import 'package:oasis/app/categories/presentation/bloc/category_content/category_content.events.dart';
 import 'package:oasis/app/categories/presentation/bloc/category_content/category_content.state.dart';
+import 'package:oasis/app/categories/presentation/ui/widgets/category_view_page_skeleton.dart';
 import 'package:oasis/app/categories/presentation/ui/widgets/category_view_page_widget.dart';
 import 'package:oasis/app/shop/models/product.model.dart';
 import 'package:oasis/common/common.dart';
-import 'package:oasis/components/widgets/common/category_header_skeleton.dart';
-import 'package:oasis/components/widgets/common/product_skeleton.dart';
-import 'package:oasis/components/widgets/common/search_skeleton.dart';
-import 'package:oasis/components/widgets/common/shimmer_wrapper.dart';
-import 'package:oasis/components/widgets/common/tag_skeleton.dart';
+import 'package:oasis/components/themes/app_theme.dart';
+import 'package:oasis/components/widgets/common/fetch_error_widget.dart';
 import 'package:oasis/components/widgets/page_header.dart';
 import 'package:oasis/locator.dart';
 
@@ -103,18 +101,28 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
           },
           builder: (context, state) {
             final tags = ['All', ...state.tags.map((e) => e.name)];
-            final allFiltered = _filteredProducts(
-              state.products,
-            ); // ← all matching
-            final visibleProducts = // ← paginated slice
-            allFiltered
-                .take(_visibleCount)
-                .toList();
-            final hasMore =
-                _visibleCount < allFiltered.length; // ← show-more gate
+            final allFiltered = _filteredProducts(state.products);
+            final visibleProducts = allFiltered.take(_visibleCount).toList();
+            final hasMore = _visibleCount < allFiltered.length;
+            final isExpanded = _visibleCount > _pageSize;
+
             final isLoading =
                 state.contentStatus == FetchStatus.loading ||
                 state.contentStatus == FetchStatus.initial;
+            final failed = state.contentStatus == FetchStatus.failure;
+
+            if (isLoading) {
+              return const CategorySkeletonScreen();
+            }
+
+            if (failed) {
+              return FetchErrorWidget(
+                message: state.errorMessage,
+                onRetry: () => context.read<CategoryContentBloc>().add(
+                  FetchCategoryContentEvent(widget.slug),
+                ),
+              );
+            }
 
             return CustomScrollView(
               slivers: [
@@ -124,123 +132,96 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
                     child: Column(
                       children: [
                         // ── Header ──────────────────────────────────────
-                        if (isLoading)
-                          shimmerWrapper(child: const CategoryHeaderSkeleton())
-                        else
-                          PageHeader(
-                            title: state.category?.name ?? '',
-                            textStyle: textStyle,
-                            onTap: () => GoRouter.of(context).pop(),
-                          ),
+                        PageHeader(
+                          title: state.category?.name ?? '',
+                          textStyle: textStyle,
+                          onTap: () => GoRouter.of(context).pop(),
+                        ),
 
                         const SizedBox(height: 12),
 
                         // ─2─ Description ──────────────────────────────────
-                        if (isLoading)
-                          shimmerWrapper(
-                            child: Container(
-                              height: 40,
-                              width: double.infinity,
-                              color: Colors.grey.shade300,
-                            ),
-                          )
-                        else
-                          Text(
-                            state.category?.description ?? '',
-                            textAlign: TextAlign.center,
-                          ),
+                        Text(
+                          state.category?.description ?? '',
+                          textAlign: TextAlign.center,
+                        ),
 
                         const SizedBox(height: 16),
 
                         // ── Search ───────────────────────────────────────
-                        if (isLoading)
-                          shimmerWrapper(child: const SearchSkeleton())
-                        else
-                          _buildSearch(
-                            searchController: _searchController,
-                            context: context,
-                            onChanged: (_) => _resetPagination(),
-                          ),
+                        _buildSearch(
+                          searchController: _searchController,
+                          context: context,
+                          onChanged: (_) => _resetPagination(),
+                        ),
 
                         const SizedBox(height: 16),
 
                         // ── Filter Tags ──────────────────────────────────
-                        if (isLoading)
-                          shimmerWrapper(child: const TagSkeleton())
-                        else
-                          SizedBox(
-                            height: 38,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: tags.length,
-                              separatorBuilder: (context, _) =>
-                                  const SizedBox(width: 8),
-                              itemBuilder: (context, index) {
-                                final tag = tags[index];
-                                final isSelected = tag == _selectedTag;
+                        SizedBox(
+                          height: 38,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: tags.length,
+                            separatorBuilder: (context, _) =>
+                                const SizedBox(width: 8),
+                            itemBuilder: (context, index) {
+                              final tag = tags[index];
+                              final isSelected = tag == _selectedTag;
 
-                                return GestureDetector(
-                                  onTap: () => {
-                                    setState(() => _selectedTag = tag),
-                                    _resetPagination(),
-                                  },
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 150),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 18,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
+                              return GestureDetector(
+                                onTap: () => {
+                                  setState(() => _selectedTag = tag),
+                                  _resetPagination(),
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 150),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? const Color(0xFF6C5CE7)
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(50),
+                                    border: Border.all(
                                       color: isSelected
                                           ? const Color(0xFF6C5CE7)
-                                          : Colors.white,
-                                      borderRadius: BorderRadius.circular(50),
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? const Color(0xFF6C5CE7)
-                                            : const Color(0xFFE0E0E0),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      tag,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : const Color(0xFF555555),
-                                      ),
+                                          : const Color(0xFFE0E0E0),
                                     ),
                                   ),
-                                );
-                              },
-                            ),
+                                  child: Text(
+                                    tag,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : const Color(0xFF555555),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
+                        ),
                         const SizedBox(height: 28),
 
                         // ── Top Products + Sort ──────────────────────────
-                        if (isLoading)
-                          shimmerWrapper(
-                            child: Container(
-                              height: 20,
-                              width: 120,
-                              color: Colors.grey.shade300,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Top Products'),
+                            SortDropdown(
+                              value: _sortBy,
+                              onChanged: (val) => {
+                                setState(() => _sortBy = val!),
+                                _resetPagination(),
+                              },
                             ),
-                          )
-                        else
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('Top Products'),
-                              SortDropdown(
-                                value: _sortBy,
-                                onChanged: (val) => {
-                                  setState(() => _sortBy = val!),
-                                  _resetPagination(),
-                                },
-                              ),
-                            ],
-                          ),
+                          ],
+                        ),
 
                         const SizedBox(height: 16),
                       ],
@@ -253,9 +234,8 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverGrid(
                     delegate: SliverChildBuilderDelegate((context, index) {
-                      if (isLoading) return const ProductSkeleton();
                       return ProductCard(product: visibleProducts[index]);
-                    }, childCount: isLoading ? 6 : visibleProducts.length),
+                    }, childCount: visibleProducts.length),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
@@ -298,12 +278,10 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
                         const SizedBox(height: 20),
 
                         // Show more button
-                        if (hasMore) // ← hidden when all shown
+                        if (hasMore)
                           OutlinedButton(
-                            onPressed: () => setState(
-                              // ← loads next page
-                              () => _visibleCount += _pageSize,
-                            ),
+                            onPressed: () =>
+                                setState(() => _visibleCount += _pageSize),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 32,
@@ -320,6 +298,34 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
                             ),
                             child: const Text(
                               'Show more',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+
+                        if (hasMore && isExpanded) const SizedBox(width: 12),
+
+                        if (isExpanded)
+                          OutlinedButton(
+                            onPressed: _resetPagination,
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 32,
+                                vertical: 14,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              side: const BorderSide(
+                                color: AppColors.inputBorder,
+                                width: 1.5,
+                              ),
+                              foregroundColor: AppColors.textSecondary,
+                            ),
+                            child: const Text(
+                              'Show less',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,

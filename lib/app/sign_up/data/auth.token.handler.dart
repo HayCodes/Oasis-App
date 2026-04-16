@@ -80,7 +80,7 @@ class TokenInterceptor extends Interceptor {
   ) async {
     final options = Options(
       method: requestOptions.method,
-      headers: {...requestOptions.headers, 'auth_token': newToken},
+      headers: {...requestOptions.headers, 'Authorization': 'Bearer $newToken'},
     );
 
     return client.dio.request<dynamic>(
@@ -102,10 +102,7 @@ class TokenInterceptor extends Interceptor {
     _refreshCompleter = Completer<TokenModel?>();
 
     try {
-      final raw = await client.post(
-        Endpoints.REFRESH,
-        data: {'refresh_cat': refreshCat},
-      );
+      final raw = await client.post(Endpoints.REFRESH);
 
       final res = handleResponse(raw);
 
@@ -127,7 +124,6 @@ class TokenInterceptor extends Interceptor {
       _refreshCompleter!.complete(null);
       return null;
     } finally {
-      // Reset the refreshing state
       _isRefreshing = false;
       _refreshCompleter = null;
     }

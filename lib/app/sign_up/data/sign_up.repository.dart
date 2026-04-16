@@ -35,6 +35,7 @@ class SignupRepository {
 
         await Future.wait([
           secureStorage.write(DbKeys.ACCESS_TOKEN, token.value),
+          secureStorage.write(DbKeys.TOKEN_EXPIRY, token.expiry.toString()),
           secureStorage.updateUserModel(user),
           sharedPrefs.updateUserSettings(updatedSettings),
         ]);

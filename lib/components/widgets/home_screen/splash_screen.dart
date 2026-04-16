@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oasis/common/common.dart';
 import 'package:oasis/components/themes/app_theme.dart';
+import 'package:oasis/core/database/database.dart';
+import 'package:oasis/locator.dart';
 import 'package:oasis/services/router/app_router_constants.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,7 +20,6 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _logoScale;
 
   @override
-  // animation
   void initState() {
     super.initState();
     _controller = AnimationController(
@@ -37,14 +39,32 @@ class _SplashScreenState extends State<SplashScreen>
         curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
       ),
     );
-    _controller.forward();
 
-    // Navigate after 3s
-    Future.delayed(const Duration(milliseconds: 3000), () {
-      if (mounted) {
-        GoRouter.of(context).goNamed(RouteNames.home);
-      }
-    });
+    _controller.forward();
+    _checkAuthAndNavigate();
+  }
+
+  Future<void> _checkAuthAndNavigate() async {
+    await Future.delayed(const Duration(milliseconds: 3000));
+
+    if (!mounted) return;
+
+    final secureStorage = sl<SecureStorage>();
+    final expiry = await secureStorage.read(DbKeys.TOKEN_EXPIRY);
+
+    if (!mounted) return;
+
+    if (expiry == null) {
+      GoRouter.of(context).goNamed(RouteNames.auth);
+      return;
+    }
+
+    final expiryTime = DateTime.fromMillisecondsSinceEpoch(
+      int.parse(expiry) * 1000,
+    );
+    final isExpired = expiryTime.isBefore(DateTime.now());
+
+    GoRouter.of(context).goNamed(isExpired ? RouteNames.auth : RouteNames.home);
   }
 
   @override

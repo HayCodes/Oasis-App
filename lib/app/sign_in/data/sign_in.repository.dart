@@ -8,7 +8,6 @@ import 'package:oasis/common/models/token.model.dart';
 import 'package:oasis/core/database/database.dart';
 import 'package:oasis/core/integrations/integrations.dart';
 
-
 class SigninRepository {
   const SigninRepository(this.dataSource, this.secureStorage, this.sharedPrefs);
 
@@ -20,8 +19,11 @@ class SigninRepository {
     try {
       final res = await dataSource.signIn(data);
       if (res.status) {
-        final user = UserModel.fromJson(res.data['user']);
-        final token = TokenModel.fromJson(res.data['token']);
+        final data = res.data as Map<String, dynamic>;
+        final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+        final token = TokenModel.fromJson(
+          data['token'] as Map<String, dynamic>,
+        );
 
         final updatedSettings = (sharedPrefs.userSettings)
           ..firstLaunch = false
@@ -30,6 +32,7 @@ class SigninRepository {
 
         await Future.wait([
           secureStorage.write(DbKeys.ACCESS_TOKEN, token.value),
+          secureStorage.write(DbKeys.TOKEN_EXPIRY, token.expiry.toString()),
           secureStorage.updateUserModel(user),
           sharedPrefs.updateUserSettings(updatedSettings),
         ]);

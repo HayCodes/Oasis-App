@@ -8,6 +8,7 @@ import 'package:oasis/app/categories/presentation/ui/widgets/category_card_skele
 import 'package:oasis/app/categories/presentation/ui/widgets/category_screen.widget.dart';
 import 'package:oasis/common/common.dart';
 import 'package:oasis/components/widgets/page_header.dart';
+import 'package:oasis/components/widgets/primary_button.dart';
 import 'package:oasis/locator.dart';
 
 class CategoryPage extends StatelessWidget {
@@ -73,9 +74,25 @@ class _CategoryView extends StatelessWidget {
                           .toList(),
                     ),
                     FetchStatus.failure => Center(
-                      child: Text(
-                        state.errorMessage ?? 'Something went wrong',
-                        style: const TextStyle(color: Colors.red),
+                      child: Column(
+                        children: [
+                          Text(
+                            state.errorMessage ?? 'Something went wrong',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: buildSecondaryButton(
+                              'Retry',
+                              onPressed: () {
+                                context.read<CategoriesBloc>().add(
+                                  const FetchAllCategoriesEvent(),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   };

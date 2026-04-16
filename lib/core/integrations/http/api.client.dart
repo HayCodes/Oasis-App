@@ -10,8 +10,8 @@ class ApiClient {
   ApiClient(this.dio, this.secureStorage, this.sharedPrefs) {
     dio.options
       ..baseUrl = appConfig.baseUrl
-      ..connectTimeout = const Duration(seconds: 300)
-      ..receiveTimeout = const Duration(seconds: 300)
+      ..connectTimeout = const Duration(seconds: 180)
+      ..receiveTimeout = const Duration(seconds: 180)
       ..headers.addAll({
         'Accept': 'application/json',
         'Content-Type': 'application/json',

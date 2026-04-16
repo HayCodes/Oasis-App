@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:oasis/app/shop/models/product_details.model.dart';
 import 'package:oasis/app/shop/presentation/bloc/product_details/bloc.dart';
 import 'package:oasis/app/shop/presentation/bloc/product_details/events.dart';
@@ -20,7 +19,6 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  String _selectedSize = '';
   bool _isFavorite = false;
 
   @override
@@ -28,10 +26,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     super.initState();
     context.read<ProductDetailBloc>().add(FetchProductDetail(widget.slug));
   }
-
-  // sizes are not in the model yet — keeping static until API provides them
-  final List<String> _sizes = ['XS', 'S', 'M', 'L', 'XL'];
-  final formatter = NumberFormat.currency(symbol: r"$");
 
   @override
   Widget build(BuildContext context) {
@@ -214,14 +208,54 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                formatter.format(productDetail.price.amount),
-                style: GoogleFonts.inter(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
+              Row(
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    r'$'
+                    '${productDetail.price.effectivePrice.toStringAsFixed(0)}',
+                    style: GoogleFonts.inter(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.accent,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    r'$'
+                    '${productDetail.price.amount.toStringAsFixed(0)}',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textSecondary,
+                      decoration: TextDecoration.lineThrough,
+                      decorationColor: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // ── Discount Badge ──────────────────────────────
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.red.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: Text(
+                      '-${productDetail.price.discount?.toStringAsFixed(0)}%',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.red,
+                      ),
+                    ),
+                  ),
+                ],
               ),
+
+              // ── Rating ───────────────────────────────────────────
               Row(
                 children: [
                   const Icon(
@@ -293,7 +327,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             Wrap(
               spacing: 8,
               children: productDetail.colors.map((color) {
-                // best-effort color parsing — falls back to grey for unknowns
                 final colorValue = _namedColorToColor(color);
                 return Container(
                   width: 28,
@@ -306,56 +339,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 24),
           ],
-
-          // Size Selection
-          Text(
-            'SELECT SIZE',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-              letterSpacing: 1.5,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: _sizes.map((size) {
-              final isSelected = _selectedSize == size;
-              return GestureDetector(
-                onTap: () => setState(() => _selectedSize = size),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  margin: const EdgeInsets.only(right: 8),
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppColors.textPrimary
-                        : Colors.transparent,
-                    border: Border.all(
-                      color: isSelected
-                          ? AppColors.textPrimary
-                          : AppColors.inputBorder,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      size,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isSelected
-                            ? Colors.white
-                            : AppColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
 
           const SizedBox(height: 28),
           const Divider(color: AppColors.inputBorder),
@@ -385,7 +369,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           const Divider(color: AppColors.inputBorder),
           const SizedBox(height: 20),
 
-          // Delivery info — static, no model equivalent
+          // DELIVERY INFO
           _buildInfoRow(
             Icons.local_shipping_outlined,
             r'Free shipping on orders over $200',
@@ -473,19 +457,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ),
         child: GestureDetector(
           onTap: () {
-            if (_selectedSize.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Please select a size',
-                    style: GoogleFonts.inter(fontSize: 13),
-                  ),
-                  backgroundColor: AppColors.textPrimary,
-                  duration: const Duration(seconds: 2),
-                ),
-              );
-              return;
-            }
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -524,9 +495,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     // Handle hex colors like #D8D8D8 or #FFF
     if (trimmed.startsWith('#')) {
       try {
-        String hex = trimmed.substring(1); // remove '#'
+        var hex = trimmed.substring(1); // remove '#'
         if (hex.length == 3) {
-          // expand shorthand #FFF → FFFFFF
           hex = hex.split('').map((c) => '$c$c').join();
         }
         if (hex.length == 6) hex = 'FF$hex'; // add full opacity
