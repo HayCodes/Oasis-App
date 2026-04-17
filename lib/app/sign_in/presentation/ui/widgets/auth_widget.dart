@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:oasis/app/sign_in/presentation/ui/widgets/forgot_password.dart';
+import 'package:oasis/app/forgot_password/presentation/ui/forgot_password.dart';
 
 Widget forgotPassword(BuildContext context) {
   void showForgotPassword() {
@@ -28,7 +28,6 @@ Widget forgotPassword(BuildContext context) {
   );
 }
 
-
 Widget buildTextField({
   required TextEditingController controller,
   required String hintText,
@@ -47,10 +46,7 @@ Widget buildTextField({
       hintStyle: TextStyle(color: Colors.grey.shade400),
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 18,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       suffixIcon: suffixIcon,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
@@ -62,10 +58,7 @@ Widget buildTextField({
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
-        borderSide: const BorderSide(
-          color: Color(0xFF7B6FE8),
-          width: 1.5,
-        ),
+        borderSide: const BorderSide(color: Color(0xFF7B6FE8), width: 1.5),
       ),
     ),
   );
@@ -80,9 +73,7 @@ Widget buildActionButton(String title, {required VoidCallback? onPressed}) {
         backgroundColor: const Color(0xFF7B6FE8),
         foregroundColor: Colors.white,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
       ),
       child: Text(
         title,
@@ -100,16 +91,13 @@ Widget buildGoogleButton({required VoidCallback onPressed}) {
       style: OutlinedButton.styleFrom(
         foregroundColor: Colors.black87,
         side: BorderSide(color: Colors.grey.shade300),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
       ),
-      icon: const FaIcon(FontAwesomeIcons.google, size: 24,),
+      icon: const FaIcon(FontAwesomeIcons.google, size: 24),
       label: const Text(
         'Continue with Google',
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
       ),
     ),
   );
-
 }

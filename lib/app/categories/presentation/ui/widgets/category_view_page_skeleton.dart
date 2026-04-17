@@ -18,7 +18,6 @@ class CategorySkeletonScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // ── Header ─────────────────────────────────────────────
                   const CategoryHeaderSkeleton(),
@@ -90,7 +89,7 @@ class CategorySkeletonScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverGrid(
               delegate: SliverChildBuilderDelegate(
-                (_, __) => const ProductSkeleton(),
+                (_, _) => const ProductSkeleton(),
                 childCount: 6,
               ),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
