@@ -5,6 +5,10 @@ import 'package:oasis/app/categories/data/categories.datasource.dart';
 import 'package:oasis/app/categories/data/categories.repository.dart';
 import 'package:oasis/app/categories/presentation/bloc/categories/categories.bloc.dart';
 import 'package:oasis/app/categories/presentation/bloc/category_content/category_content.bloc.dart';
+import 'package:oasis/app/forgot_password/data/forgot_password.datasource.dart';
+import 'package:oasis/app/forgot_password/data/forgot_password.repository.dart';
+import 'package:oasis/app/forgot_password/presentation/bloc/forgot_password/bloc.dart';
+import 'package:oasis/app/forgot_password/presentation/bloc/reset_password/bloc.dart';
 import 'package:oasis/app/profile/data/profile.datasource.dart';
 import 'package:oasis/app/profile/data/profile.repository.dart';
 import 'package:oasis/app/profile/presentation/bloc/profile.bloc.dart';
@@ -46,16 +50,32 @@ class AppManager {
       ..registerLazySingleton(() => ProductDataSource(sl()))
       ..registerLazySingleton(() => CategoriesDataSource(sl()))
       ..registerLazySingleton(() => ProfileDataSource(sl()))
+      ..registerLazySingleton(() => ForgotPasswordDataSource(sl()))
       // repositories
       ..registerLazySingleton<ProductRepository>(
         () => ProductRepositoryImpl(sl()),
       )
-      ..registerLazySingleton(() => SigninRepository(sl(), sl(), sl()))
-      ..registerLazySingleton(() => SignupRepository(sl(), sl(), sl()))
+      ..registerLazySingleton(
+        () => SigninRepository(
+          sl(),
+          sl(),
+          sl(),
+          sl<ApiClient>().tokenInterceptor,
+        ),
+      )
+      ..registerLazySingleton(
+        () => SignupRepository(
+          sl(),
+          sl(),
+          sl(),
+          sl<ApiClient>().tokenInterceptor,
+        ),
+      )
       ..registerLazySingleton(() => ProfileRepository(sl()))
       ..registerLazySingleton<CategoryRepository>(
         () => CategoryRepositoryImpl(sl()),
       )
+      ..registerLazySingleton(() => ForgotPasswordRepository(sl()))
       // blocs
       ..registerFactory(() => AllProductsBloc(sl()))
       ..registerFactory(() => TopProductsBloc(sl()))
@@ -64,6 +84,8 @@ class AppManager {
       ..registerFactory(() => SignUpBloc(sl()))
       ..registerFactory(() => AuthBloc(sl()))
       ..registerFactory(() => ProfileBloc(sl()))
-      ..registerFactory(() => ProductDetailBloc(sl()));
+      ..registerFactory(() => ProductDetailBloc(sl()))
+      ..registerFactory(() => ForgotPasswordBloc(sl()))
+      ..registerFactory(() => ResetPasswordBloc(sl()));
   }
 }

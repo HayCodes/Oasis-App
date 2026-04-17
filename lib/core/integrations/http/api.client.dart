@@ -15,7 +15,16 @@ class ApiClient {
       ..headers.addAll({
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'X-Client-Type': 'mobile',
       });
+
+    tokenInterceptor = TokenInterceptor(
+      client: this,
+      onLogout: () async {
+        await secureStorage.deleteAll();
+        await sharedPrefs.clear();
+      },
+    );
 
     dio.interceptors.addAll([
       InterceptorsWrapper(
@@ -54,19 +63,14 @@ class ApiClient {
           return handler.next(e);
         },
       ),
-      TokenInterceptor(
-        client: this,
-        onLogout: () async {
-          await secureStorage.deleteAll();
-          await sharedPrefs.clear();
-        },
-      ),
+      tokenInterceptor,
     ]);
   }
 
   final Dio dio;
   final SecureStorage secureStorage;
   final SharedPrefs sharedPrefs;
+  late final TokenInterceptor tokenInterceptor;
 
   Future<Response> get(
     String url, {

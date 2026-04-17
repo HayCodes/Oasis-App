@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:oasis/app/profile/models/profile.model.dart';
+import 'package:oasis/app/sign_up/data/auth.token.handler.dart';
 import 'package:oasis/app/sign_up/data/sign_up.datasource.dart';
 import 'package:oasis/app/sign_up/model/signup.dto.dart';
 import 'package:oasis/common/common.dart';
@@ -9,11 +10,12 @@ import 'package:oasis/core/database/database.dart';
 import 'package:oasis/core/integrations/integrations.dart';
 
 class SignupRepository {
-  const SignupRepository(this.dataSource, this.secureStorage, this.sharedPrefs);
+  const SignupRepository(this.dataSource, this.secureStorage, this.sharedPrefs, this.tokenInterceptor);
 
   final SignUpDataSource dataSource;
   final SecureStorage secureStorage;
   final SharedPrefs sharedPrefs;
+  final TokenInterceptor tokenInterceptor;
 
   AsyncEither<String> signup(SignupDto data) async {
     try {
@@ -39,6 +41,8 @@ class SignupRepository {
           secureStorage.updateUserModel(user),
           sharedPrefs.updateUserSettings(updatedSettings),
         ]);
+        tokenInterceptor.scheduleRefreshFromExpiry(token.expiry!);
+
 
         return Right(user.name ?? "");
       }

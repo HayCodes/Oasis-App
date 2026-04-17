@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:oasis/common/common.dart';
 import 'package:oasis/components/themes/app_theme.dart';
 import 'package:oasis/core/database/database.dart';
+import 'package:oasis/core/integrations/integrations.dart';
 import 'package:oasis/locator.dart';
 import 'package:oasis/services/router/app_router_constants.dart';
 
@@ -64,7 +65,17 @@ class _SplashScreenState extends State<SplashScreen>
     );
     final isExpired = expiryTime.isBefore(DateTime.now());
 
-    GoRouter.of(context).goNamed(isExpired ? RouteNames.auth : RouteNames.home);
+    if (isExpired) {
+      GoRouter.of(context).goNamed(RouteNames.auth);
+      return;
+    }
+
+    // Token is still valid — resume the refresh cycle
+    sl<ApiClient>().tokenInterceptor.scheduleRefreshFromExpiry(
+      int.parse(expiry),
+    );
+
+    GoRouter.of(context).goNamed(RouteNames.home);
   }
 
   @override

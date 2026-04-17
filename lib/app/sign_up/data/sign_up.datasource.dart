@@ -19,35 +19,10 @@ class SignUpDataSource {
           'password_confirmation': data.passwordConfirmation,
           'terms': data.terms,
         },
-        headers: {'X-Client-Type': 'mobile'},
       );
       return handleResponse(res);
     } catch (e) {
       rethrow;
     }
   }
-
-  // Future<AbstractApiResponse> resendOTP(LoginDto data) async {
-  //   try {
-  //     final res = await client.post(
-  //       Endpoints.RESEND_OTP,
-  //       data: {'email': data.email, 'type': 'email.verification'},
-  //     );
-  //     return handleResponse(res);
-  //   } catch (e) {
-  //     rethrow;
-  //   }
-  // }
-  //
-  // Future<AbstractApiResponse> verifyLogin(VerifyLoginDto data) async {
-  //   try {
-  //     final res = await client.post(
-  //       Endpoints.VERIFY_LOGIN,
-  //       data: {'userId': data.userId, 'otp': data.otp, 'source': 'app'},
-  //     );
-  //     return handleResponse(res);
-  //   } catch (e) {
-  //     rethrow;
-  //   }
-  // }
 }

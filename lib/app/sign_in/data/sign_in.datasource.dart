@@ -13,7 +13,7 @@ class SignInDataSource {
       final res = await client.post(
         Endpoints.LOGIN,
         data: {'email': data.email, 'password': data.password},
-        headers: {"X-Client-Type": "mobile"},
+        // headers: {"X-Client-Type": "mobile"},
       );
       return handleResponse(res);
     } catch (e) {

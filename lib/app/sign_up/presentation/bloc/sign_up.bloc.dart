@@ -1,4 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+  import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oasis/app/sign_up/data/sign_up.repository.dart';
 import 'package:oasis/app/sign_up/presentation/bloc/sign_up.event.dart';
 import 'package:oasis/app/sign_up/presentation/bloc/sign_up.state.dart';

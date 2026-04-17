@@ -3,17 +3,24 @@ import 'package:dio/dio.dart';
 import 'package:oasis/app/profile/models/profile.model.dart';
 import 'package:oasis/app/sign_in/data/sign_in.datasource.dart';
 import 'package:oasis/app/sign_in/models/sign_in.dto.dart';
+import 'package:oasis/app/sign_up/data/auth.token.handler.dart';
 import 'package:oasis/common/common.dart';
 import 'package:oasis/common/models/token.model.dart';
 import 'package:oasis/core/database/database.dart';
 import 'package:oasis/core/integrations/integrations.dart';
 
 class SigninRepository {
-  const SigninRepository(this.dataSource, this.secureStorage, this.sharedPrefs);
+  const SigninRepository(
+    this.dataSource,
+    this.secureStorage,
+    this.sharedPrefs,
+    this.tokenInterceptor,
+  );
 
   final SignInDataSource dataSource;
   final SecureStorage secureStorage;
   final SharedPrefs sharedPrefs;
+  final TokenInterceptor tokenInterceptor;
 
   AsyncEither<UserModel> signIn(SignInDto data) async {
     try {
@@ -36,6 +43,8 @@ class SigninRepository {
           secureStorage.updateUserModel(user),
           sharedPrefs.updateUserSettings(updatedSettings),
         ]);
+
+        tokenInterceptor.scheduleRefreshFromExpiry(token.expiry!);
 
         return Right(user);
       } else {

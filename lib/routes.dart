@@ -21,10 +21,12 @@ import 'package:oasis/app/support/support.dart';
 import 'package:oasis/components/widgets/home_screen/bottom_nav.dart';
 import 'package:oasis/components/widgets/home_screen/splash_screen.dart';
 import 'package:oasis/locator.dart';
+import 'package:oasis/main.dart';
 import 'package:oasis/services/router/app_router_constants.dart';
 
 class AppRouter {
   GoRouter router = GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: '/',
     routes: [
       // ── Outside the shell (no bottom nav) ──
@@ -67,8 +69,6 @@ class AppRouter {
         path: '/product/:slug',
         name: RouteNames.productDetail,
         builder: (context, state) {
-          debugPrint(
-              '>>> ROUTE HIT: ${state.pathParameters['slug']}');
           final slug = state.pathParameters['slug']!;
           return BlocProvider(
             create: (context) => sl<ProductDetailBloc>(),
