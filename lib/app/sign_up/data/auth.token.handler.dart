@@ -151,7 +151,7 @@ class TokenInterceptor extends Interceptor {
     );
 
     // Fire 7 minutes before expiry
-    final refreshAt = expiryTime.subtract(const Duration(minutes: 5));
+    final refreshAt = expiryTime.subtract(const Duration(minutes: 55));
     final delay = refreshAt.difference(DateTime.now());
 
     if (delay.isNegative) {
