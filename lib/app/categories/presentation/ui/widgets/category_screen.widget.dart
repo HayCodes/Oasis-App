@@ -219,7 +219,7 @@ class BottomCTA extends StatelessWidget {
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () {
-              GoRouter.of(context).pushNamed(RouteNames.shop);
+              GoRouter.of(context).goNamed(RouteNames.shop);
             },
             icon: const Icon(Icons.arrow_outward_rounded, size: 18),
             iconAlignment: IconAlignment.end,

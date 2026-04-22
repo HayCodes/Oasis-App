@@ -23,8 +23,8 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       ),
       (res) => emit(
         state.copyWith(
+          productsMap: {...state.productsMap, res.product.id.toString(): res.product},
           productDetailsStatus: FetchStatus.success,
-          product: res.product,
           relatedProducts: res.relatedProducts,
         ),
       ),

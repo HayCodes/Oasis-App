@@ -29,10 +29,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ProductDetailBloc, ProductDetailState>(
+    return BlocConsumer<ProductDetailBloc, ProductDetailState>(
+      listener: (context, state) {
+        final product = state.getProduct(widget.slug);
+        debugPrint('🟡ProductDetailBloc → state: $product');
+        debugPrint('🟡Product ID: ${product?.id}');
+        debugPrint('🟡Slug: ${widget.slug}');
+      },
       builder: (context, state) {
-        if (state.productDetailsStatus == FetchStatus.initial ||
-            state.productDetailsStatus == FetchStatus.loading) {
+        final product = state.getProduct(widget.slug);
+        if ((state.productDetailsStatus == FetchStatus.initial ||
+                state.productDetailsStatus == FetchStatus.loading) &&
+            product?.id.toString() != widget.slug) {
           return const Scaffold(
             backgroundColor: AppColors.background,
             body: Center(
@@ -45,7 +53,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         }
 
         if (state.productDetailsStatus == FetchStatus.failure ||
-            state.product == null) {
+            product == null) {
           return Scaffold(
             backgroundColor: AppColors.background,
             appBar: AppBar(
@@ -89,8 +97,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
           );
         }
-
-        final product = state.product!;
 
         return Scaffold(
           backgroundColor: AppColors.background,

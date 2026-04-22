@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:oasis/app/categories/data/categories.repository.dart';
 import 'package:oasis/app/categories/presentation/bloc/category_content/category_content.bloc.dart';
 import 'package:oasis/app/categories/presentation/bloc/category_content/category_content.events.dart';
 import 'package:oasis/app/categories/presentation/bloc/category_content/category_content.state.dart';
@@ -12,38 +11,29 @@ import 'package:oasis/common/common.dart';
 import 'package:oasis/components/themes/app_theme.dart';
 import 'package:oasis/components/widgets/common/fetch_error_widget.dart';
 import 'package:oasis/components/widgets/page_header.dart';
-import 'package:oasis/locator.dart';
 
-class CategoryViewPage extends StatelessWidget {
+class CategoryViewPage extends StatefulWidget {
   const CategoryViewPage({super.key, required this.slug});
-
   final String slug;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          CategoryContentBloc(sl<CategoryRepository>())
-            ..add(FetchCategoryContentEvent(slug)),
-      child: _CategoryViewBody(slug: slug),
-    );
-  }
+  State<CategoryViewPage> createState() => _CategoryViewPageState();
 }
 
-class _CategoryViewBody extends StatefulWidget {
-  const _CategoryViewBody({required this.slug});
-  final String slug;
-
-  @override
-  State<_CategoryViewBody> createState() => _CategoryViewBodyState();
-}
-
-class _CategoryViewBodyState extends State<_CategoryViewBody> {
+class _CategoryViewPageState extends State<CategoryViewPage> {
   String _selectedTag = 'All';
   String _sortBy = 'Most Recent';
   final TextEditingController _searchController = TextEditingController();
   static const int _pageSize = 6;
   int _visibleCount = _pageSize;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<CategoryContentBloc>().add(
+      FetchCategoryContentEvent(widget.slug),
+    );
+  }
 
   List<Product> _filteredProducts(List<Product> products) {
     final result = products.where((p) {
@@ -65,7 +55,7 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
         );
       case 'Popular':
         result.sort((a, b) => b.popularity.compareTo(a.popularity));
-      default: // Most Recent
+      default:
         result.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     }
 
@@ -73,12 +63,6 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
   }
 
   void _resetPagination() => setState(() => _visibleCount = _pageSize);
-
-  @override
-  void didUpdateWidget(covariant _CategoryViewBody oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.slug != widget.slug) _resetPagination();
-  }
 
   @override
   void dispose() {
@@ -95,9 +79,8 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
       body: SafeArea(
         child: BlocConsumer<CategoryContentBloc, CategoryContentState>(
           listener: (context, state) {
-            debugPrint('🟡 Status: ${state.contentStatus}');
-            debugPrint('🟡 Products: ${state.products.length}');
-            debugPrint('🟡 Category: ${state.category?.name}');
+            debugPrint('🟡Category ID: ${state.category?.slug}');
+            debugPrint('🟡Slug: ${widget.slug}');
           },
           builder: (context, state) {
             final tags = ['All', ...state.tags.map((e) => e.name)];
@@ -107,13 +90,12 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
             final isExpanded = _visibleCount > _pageSize;
 
             final isLoading =
-                state.contentStatus == FetchStatus.loading ||
-                state.contentStatus == FetchStatus.initial;
+                (state.contentStatus == FetchStatus.loading ||
+                    state.contentStatus == FetchStatus.initial) &&
+                state.category?.slug != widget.slug;
             final failed = state.contentStatus == FetchStatus.failure;
 
-            if (isLoading) {
-              return const CategorySkeletonScreen();
-            }
+            if (isLoading) return const CategorySkeletonScreen();
 
             if (failed) {
               return FetchErrorWidget(
@@ -131,33 +113,23 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       children: [
-                        // ── Header ──────────────────────────────────────
                         PageHeader(
                           title: state.category?.name ?? '',
                           textStyle: textStyle,
                           onTap: () => GoRouter.of(context).pop(),
                         ),
-
                         const SizedBox(height: 12),
-
-                        // ─2─ Description ──────────────────────────────────
                         Text(
                           state.category?.description ?? '',
                           textAlign: TextAlign.center,
                         ),
-
                         const SizedBox(height: 16),
-
-                        // ── Search ───────────────────────────────────────
                         _buildSearch(
                           searchController: _searchController,
                           context: context,
                           onChanged: (_) => _resetPagination(),
                         ),
-
                         const SizedBox(height: 16),
-
-                        // ── Filter Tags ──────────────────────────────────
                         SizedBox(
                           height: 38,
                           child: ListView.separated(
@@ -207,8 +179,6 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
                           ),
                         ),
                         const SizedBox(height: 28),
-
-                        // ── Top Products + Sort ──────────────────────────
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -222,20 +192,19 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 16),
                       ],
                     ),
                   ),
                 ),
-
-                // ── Product Grid ─────────────────────────────────────────
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverGrid(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      return ProductCard(product: visibleProducts[index]);
-                    }, childCount: visibleProducts.length),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) =>
+                          ProductCard(product: visibleProducts[index]),
+                      childCount: visibleProducts.length,
+                    ),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
@@ -245,8 +214,6 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
                         ),
                   ),
                 ),
-
-                // ── Pagination info + Show More ───────────────────────────
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -263,7 +230,6 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        // Progress bar
                         ClipRounded(
                           radius: 50,
                           child: LinearProgressIndicator(
@@ -276,8 +242,6 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
                           ),
                         ),
                         const SizedBox(height: 20),
-
-                        // Show more button
                         if (hasMore)
                           OutlinedButton(
                             onPressed: () =>
@@ -304,9 +268,7 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
                               ),
                             ),
                           ),
-
                         if (hasMore && isExpanded) const SizedBox(width: 12),
-
                         if (isExpanded)
                           OutlinedButton(
                             onPressed: _resetPagination,
@@ -332,13 +294,9 @@ class _CategoryViewBodyState extends State<_CategoryViewBody> {
                               ),
                             ),
                           ),
-
                         const SizedBox(height: 32),
-
-                        // ── People also viewed ─────────────────────────
                         if (state.relatedProducts.isNotEmpty)
                           PeopleAlsoViewed(products: state.relatedProducts),
-
                         const SizedBox(height: 32),
                       ],
                     ),

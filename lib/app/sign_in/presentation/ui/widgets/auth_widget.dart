@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:oasis/app/forgot_password/data/forgot_password.repository.dart';
 import 'package:oasis/app/forgot_password/presentation/bloc/forgot_password/bloc.dart';
 import 'package:oasis/app/forgot_password/presentation/bloc/reset_password/bloc.dart';
 import 'package:oasis/app/forgot_password/presentation/ui/forgot_password.dart';
@@ -11,14 +12,19 @@ Widget forgotPassword(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) =>
-          MultiBlocProvider(
-            providers: [
-              BlocProvider(create: (context) => sl<ForgotPasswordBloc>()),
-              BlocProvider(create: (context) => sl<ResetPasswordBloc>()),
-            ],
-            child: const ForgotPasswordSheet(),
+      builder: (context) => MultiBlocProvider(
+        providers: [
+          BlocProvider<ForgotPasswordBloc>(
+            create: (context) =>
+                ForgotPasswordBloc(sl<ForgotPasswordRepository>()),
           ),
+          BlocProvider<ResetPasswordBloc>(
+            create: (context) =>
+                ResetPasswordBloc(sl<ForgotPasswordRepository>()),
+          ),
+        ],
+        child: const ForgotPasswordSheet(),
+      ),
     );
   }
 

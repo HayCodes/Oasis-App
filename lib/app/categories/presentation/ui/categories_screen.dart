@@ -9,18 +9,24 @@ import 'package:oasis/app/categories/presentation/ui/widgets/category_screen.wid
 import 'package:oasis/common/common.dart';
 import 'package:oasis/components/widgets/page_header.dart';
 import 'package:oasis/components/widgets/primary_button.dart';
-import 'package:oasis/locator.dart';
 
-class CategoryPage extends StatelessWidget {
+class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});
 
   @override
+  State<CategoryPage> createState() => _CategoryPageState();
+}
+
+class _CategoryPageState extends State<CategoryPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<CategoriesBloc>().add(const FetchAllCategoriesEvent());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          sl<CategoriesBloc>()..add(const FetchAllCategoriesEvent()),
-      child: const _CategoryView(),
-    );
+    return const _CategoryView();
   }
 }
 
@@ -50,7 +56,6 @@ class _CategoryView extends StatelessWidget {
                 style: textStyle.headlineSmall,
               ),
               const SizedBox(height: 24),
-
               BlocBuilder<CategoriesBloc, CategoriesState>(
                 builder: (context, state) {
                   return switch (state.categoriesStatus) {

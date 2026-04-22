@@ -54,17 +54,17 @@ class _SplashScreenState extends State<SplashScreen>
     final expiry = await secureStorage.read(DbKeys.TOKEN_EXPIRY);
 
     if (!mounted) return;
-
+    debugPrint('token expiry: $expiry');
     if (expiry == null) {
-      GoRouter.of(context).goNamed(RouteNames.auth);
+      GoRouter.of(context).goNamed(RouteNames.home);
       return;
     }
-
     final expiryTime = DateTime.fromMillisecondsSinceEpoch(
       int.parse(expiry) * 1000,
     );
     final isExpired = expiryTime.isBefore(DateTime.now());
 
+    debugPrint('isExpired: $isExpired');
     if (isExpired) {
       GoRouter.of(context).goNamed(RouteNames.auth);
       return;

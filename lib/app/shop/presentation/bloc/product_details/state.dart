@@ -5,34 +5,38 @@ import 'package:oasis/common/common.dart';
 
 class ProductDetailState extends Equatable {
   const ProductDetailState({
-    this.product,
     this.relatedProducts = const [],
     this.productDetailsStatus = FetchStatus.initial,
     this.errorMessage,
+    this.productsMap = const {}
   });
 
-  final ProductDetail? product;
+  final Map<String, ProductDetail> productsMap;
   final List<Product> relatedProducts;
   final FetchStatus productDetailsStatus;
   final String? errorMessage;
 
   ProductDetailState copyWith({
-    ProductDetail? product,
     List<Product>? relatedProducts,
     FetchStatus? productDetailsStatus,
     String? errorMessage,
+    Map<String, ProductDetail>? productsMap,
   }) => ProductDetailState(
-    product: product ?? this.product,
     relatedProducts: relatedProducts ?? this.relatedProducts,
     productDetailsStatus: productDetailsStatus ?? this.productDetailsStatus,
     errorMessage: errorMessage ?? this.errorMessage,
+    productsMap: productsMap ?? this.productsMap,
   );
+
+  ProductDetail? getProduct(String id) {
+    return productsMap[id];
+  }
 
   @override
   List<Object?> get props => [
-    product,
     relatedProducts,
     productDetailsStatus,
     errorMessage,
+    productsMap
   ];
 }
